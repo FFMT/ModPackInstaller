@@ -7,6 +7,22 @@
 -dontwarn javax.inject.**
 -dontwarn **
 
--keep class fr.minecraftforgefrance.installer.ModPackInstaller {
+-keep class fr.minecraftforgefrance.installer.Installer {
     public static void main(java.lang.String[]);
+}
+
+-keep class fr.minecraftforgefrance.updater.Updater
+
+-keepclassmembers class * {
+    static final %                *;
+    static final java.lang.String *;
+}
+
+-keep public class fr.minecraftforgefrance.**.** {
+    public protected <methods>;
+}
+
+-keepclassmembers enum  * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
 }

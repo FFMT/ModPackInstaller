@@ -39,7 +39,7 @@ public enum EnumOS
 			String folder = applicationData != null ? applicationData : userHome;
 			return new File(folder, ".minecraft");
 		case MACOS:
-			return new File(new File(new File(userHome, "Library"),"Application Support"),"minecraft");
+			return new File(new File(new File(userHome, "Library"), "Application Support"), "minecraft");
 		default:
 			return new File(userHome, "minecraft");
 		}

@@ -24,7 +24,7 @@ repositories {
 }
 
 group = 'net.minecraftforgefrance'
-archivesBaseName = 'ModPack-installer'
+archivesBaseName = 'installer'
 version = '0.1'
 targetCompatibility = '1.6'
 sourceCompatibility = '1.6'
