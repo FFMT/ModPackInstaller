@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.LaunchClassLoader;
-import fr.minecraftforgefrance.installer.InstallerFrame;
 
 public class Updater implements ITweaker
 {

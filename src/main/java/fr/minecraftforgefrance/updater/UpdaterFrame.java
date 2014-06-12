@@ -15,9 +15,7 @@ public class UpdaterFrame extends JFrame
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 
-		// Instanciation d'un objet JPanel
 		JPanel pan = new JPanel();
-		// Définition de sa couleur de fond
 		pan.setBackground(Color.ORANGE);
 		this.setContentPane(pan);
 

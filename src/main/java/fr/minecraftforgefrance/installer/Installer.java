@@ -1,12 +1,9 @@
 package fr.minecraftforgefrance.installer;
 
-import java.net.URL;
-
 import javax.swing.UIManager;
 
 import fr.minecraftforgefrance.common.DownloadEntry;
 import fr.minecraftforgefrance.common.DownloadMod;
-import fr.minecraftforgefrance.updater.FrameThread;
 
 public class Installer
 {
