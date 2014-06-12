@@ -5,6 +5,5 @@ public class FrameThread extends Thread
 	public void run()
 	{
 		UpdaterFrame frame = new UpdaterFrame();
-		System.out.println("yolo");
 	}
 }

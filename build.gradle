@@ -45,7 +45,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task fatJar(type: Jar, dependsOn: jar) {
     inputs.file jar.archivePath
     from(configurations.compile.collect { zipTree(it).matching { include '**/*.class' } })
-	manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.ModPackInstaller' }
+	manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.Installer' }
 }
 
 fatJar.doFirst {
@@ -70,7 +70,7 @@ task shrinkJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
 task shrinkOutput(type: Jar, dependsOn: shrinkJar) {
     classifier = 'shrunk'
     from zipTree(shrinkJar.obfuscatedJar)
-    manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.ModPackInstaller' }
+    manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.Installer' }
 }
 
 artifacts {
@@ -82,7 +82,7 @@ artifacts {
 jar {
     classifier = 'thin'
     exclude 'argo/**'
-    manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.ModPackInstaller' }
+    manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.Installer' }
 }
 
 uploadArchives {
