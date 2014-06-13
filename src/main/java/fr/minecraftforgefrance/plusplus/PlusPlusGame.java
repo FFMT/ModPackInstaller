@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.Random;
 
 import javax.swing.BoxLayout;
@@ -16,6 +17,7 @@ import javax.swing.JTextField;
 
 public class PlusPlusGame extends JFrame
 {
+	public static boolean isRunning;
 	private Random rand = new Random();
 	private JProgressBar progressBar;
 	private int level = 1, currentClick, totalClick = 0, score;
@@ -25,10 +27,12 @@ public class PlusPlusGame extends JFrame
 
 	public PlusPlusGame()
 	{
+		isRunning = true;
+
 		this.setTitle("The ++ Game");
 		this.setSize(400, 200);
 		this.setLocationRelativeTo(null);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 
 		progressBar = new JProgressBar(0, 10);
@@ -119,12 +123,21 @@ public class PlusPlusGame extends JFrame
 			progressBar.setValue(i);
 			totalClick++;
 		}
-		
+
 		field.setText("Level: " + level + "|Score: " + score);
 		field2.setText("Clicks for next level: " + (int)(10 * Math.pow(2, level - 1)) + " | Current: " + currentClick + " | Total real click: " + totalClick);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int x = rand.nextInt(dim.width - 400);
 		int y = rand.nextInt(dim.height - 200);
 		this.setLocation(x, y);
+	}
+
+	protected void processWindowEvent(WindowEvent e)
+	{
+		if(e.getID() == WindowEvent.WINDOW_CLOSING)
+		{
+			isRunning = false;
+		}
+		super.processWindowEvent(e);
 	}
 }

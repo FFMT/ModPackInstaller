@@ -2,13 +2,11 @@ package fr.minecraftforgefrance.installer;
 
 import javax.swing.UIManager;
 
-import fr.minecraftforgefrance.common.DownloadEntry;
-import fr.minecraftforgefrance.common.DownloadMod;
-
 public class Installer
 {
 	public static void main(String[] args)
 	{
+		/*
 		System.out.println(EnumOS.getPlatform().name());
 		System.out.println(EnumOS.getMinecraftDefaultDir().getAbsolutePath());
 		for(DownloadEntry entry : DownloadMod.instance().getRemoteList())
@@ -18,6 +16,7 @@ public class Installer
 			System.out.println(entry.getSize());
 		}
 		System.out.println(DownloadMod.instance().time / 1000000L + "ms");
+		*/
 		
 		try
 		{
@@ -28,5 +27,6 @@ public class Installer
 			e.printStackTrace();
 		}
 		InstallerFrame frame = new InstallerFrame();
+		frame.run();
 	}
 }
