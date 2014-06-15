@@ -19,9 +19,9 @@ public class DownloadMod
 	
 	public int time = 0;
 	
-    public List<DownloadEntry> getRemoteList()
+    public List<FileEntry> getRemoteList()
     {
-        List<DownloadEntry> result = Collections.synchronizedList(new ArrayList<DownloadEntry>());
+        List<FileEntry> result = Collections.synchronizedList(new ArrayList<FileEntry>());
         try
         {
             URL resourceUrl = new URL(Constants.MODS_URL);
@@ -40,11 +40,12 @@ public class DownloadMod
                     Element element = (Element)node;
                     String key = element.getElementsByTagName("Key").item(0).getChildNodes().item(0).getNodeValue();
                     long size = Long.parseLong(element.getElementsByTagName("Size").item(0).getChildNodes().item(0).getNodeValue());
-                    String md5 = element.getElementsByTagName("ETag").item(0).getChildNodes().item(0).getNodeValue();
+                    String md5 = element.getElementsByTagName("MD5").item(0).getChildNodes().item(0).getNodeValue();
                     
                     if(size > 0L)
                     {
-                        result.add(new DownloadEntry(new URL(Constants.MODS_URL + key), md5, size));
+                    	String link = Constants.MODS_URL + key;
+                        result.add(new FileEntry(new URL(link), md5, key));
                     }
                 }
             }

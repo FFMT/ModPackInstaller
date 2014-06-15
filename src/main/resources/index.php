@@ -38,11 +38,11 @@ foreach(ScanDirectory('.') as $key => $value){
 	$content->addChild('LastModified', date("Y-m-d\TH:i:s.000\Z", filemtime($value)));
 	
 	if(is_dir($value)&& $value != '.' && $value != '..'){
-		$content->addChild('ETag', '"'.md5($value).'"');
+		$content->addChild('MD5', md5($value));
 		$content->addChild('Size', 0);
 	}else{
 		$content->addChild('Size', $stat['size']);
-		$content->addChild('ETag', '"'.md5_file($value).'"');
+		$content->addChild('MD5', md5_file($value));
 	}
 	$content->addChild('StorageClass', 'STANDARD');
 }

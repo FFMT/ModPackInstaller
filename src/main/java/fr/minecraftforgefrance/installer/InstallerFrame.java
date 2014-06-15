@@ -71,8 +71,8 @@ public class InstallerFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				new ProcessInstall();
 				dispose();
+				new ProcessInstall();
 			}
 		});
 
