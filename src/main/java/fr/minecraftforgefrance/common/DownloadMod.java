@@ -45,7 +45,7 @@ public class DownloadMod
                     if(size > 0L)
                     {
                     	String link = Constants.MODS_URL + key;
-                        result.add(new FileEntry(new URL(link), md5, key));
+                        result.add(new FileEntry(new URL(link), md5, key, size));
                     }
                 }
             }

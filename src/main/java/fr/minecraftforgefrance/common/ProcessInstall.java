@@ -2,24 +2,26 @@ package fr.minecraftforgefrance.common;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -29,8 +31,11 @@ import fr.minecraftforgefrance.installer.EnumOS;
 public class ProcessInstall
 {
 	private JFrame frame;
-	private JProgressBar progressBar;
+	private JProgressBar fileProgressBar;
+	private JProgressBar fullProgressBar;
 	private JPanel panel;
+	private JLabel downloadSpeedLabel;
+	private JLabel currentDownload;
 
 	private List<FileEntry> remoteList = DownloadMod.instance().getRemoteList();
 	private List<FileEntry> localList = new ArrayList<FileEntry>();
@@ -47,24 +52,50 @@ public class ProcessInstall
 		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.frame.setVisible(true);
 		this.frame.setResizable(false);
-		this.frame.setSize(200, 100);
+		this.frame.setSize(500, 100);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int x = (dim.width / 2) - (frame.getSize().width / 2);
 		int y = (dim.height / 2) - (frame.getSize().height / 2);
 		this.frame.setLocation(x, y);
-		progressBar = new JProgressBar(0, 10);
-		progressBar.setValue(0);
-		progressBar.setStringPainted(true);
+
+		fileProgressBar = new JProgressBar(0, 10);
+		fileProgressBar.setValue(0);
+		fileProgressBar.setStringPainted(true);
+
+		fullProgressBar = new JProgressBar(0, 10);
+		fullProgressBar.setValue(0);
+		fullProgressBar.setStringPainted(true);
+
+		currentDownload = new JLabel(" ");
+		downloadSpeedLabel = new JLabel(" ");
 		panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.add(progressBar);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(currentDownload);
+		panel.add(fileProgressBar);
+		panel.add(fullProgressBar);
+		panel.add(downloadSpeedLabel);
+
 		this.frame.setContentPane(panel);
-		this.frame.pack();
 
 		this.getLocalFile();
 		this.compare();
-		this.deleteDeprecated();
+		fullProgressBar.setMaximum(this.getTotalDownloadSize());
+		System.out.println(fullProgressBar.getMaximum());
+		if(!remoteList.isEmpty())
+		{
+			this.deleteDeprecated();
+		}
 		this.downloadFiles();
+	}
+
+	private int getTotalDownloadSize()
+	{
+		int size = 0;
+		for(FileEntry entry : missingList)
+		{
+			size += entry.getSize();
+		}
+		return size;
 	}
 
 	private void getLocalFile()
@@ -106,7 +137,7 @@ public class ProcessInstall
 			}
 			else
 			{
-				list.add(new FileEntry(getMd5(file), file.getAbsolutePath().replace(modpackPath + File.separator, "")));
+				list.add(new FileEntry(getMd5(file), file.getAbsolutePath().replace(modpackPath + File.separator, ""), file.length()));
 			}
 		}
 	}
@@ -130,7 +161,9 @@ public class ProcessInstall
 
 			int read = stream.read(buffer);
 			while(read >= 1)
+			{
 				read = stream.read(buffer);
+			}
 		}
 		catch(final Exception ignored)
 		{
@@ -139,6 +172,7 @@ public class ProcessInstall
 		finally
 		{
 			if(stream != null)
+			{
 				try
 				{
 					stream.close();
@@ -147,8 +181,8 @@ public class ProcessInstall
 				{
 
 				}
+			}
 		}
-
 		return String.format("%1$032x", new Object[] {new BigInteger(1, stream.getMessageDigest().digest())});
 	}
 
@@ -163,88 +197,124 @@ public class ProcessInstall
 			}
 			else
 			{
-				// TODO warn user
+				frame.dispose();
+				JOptionPane.showMessageDialog(null, "Couldn't delete file : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
 
 	public void downloadFiles()
 	{
-		for(FileEntry entry : missingList)
+		new Thread()
 		{
-			File f = new File(modPackDir, entry.getPath());
-			if(f.getParentFile() != null && !f.getParentFile().isDirectory())
+			@Override
+			public void run()
 			{
-				f.getParentFile().mkdirs();
-			}
-			this.downloadFile(entry.getUrl(), f);
-			System.out.println("Download file " + entry.getUrl() + " to " + f.getPath() + "(md5 is : " + entry.getMd5() + ")");
-		}
-	}
-
-	public void downloadFile(URL url, File dest)
-	{
-		progressBar.setValue(0);
-		try
-		{
-			URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-			url = uri.toURL();
-			InputStream input = null;
-			FileOutputStream writeFile = null;
-			try
-			{
-				HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-				int fileLength = connection.getContentLength();
-				progressBar.setMaximum(fileLength);
-				if(fileLength == -1)
+				for(FileEntry entry : missingList)
 				{
-					System.out.println("Invalide URL or file.");
-					return;
+					File f = new File(modPackDir, entry.getPath());
+					if(f.getParentFile() != null && !f.getParentFile().isDirectory())
+					{
+						f.getParentFile().mkdirs();
+					}
+					currentDownload.setText(entry.getPath());
+					System.out.println("Download file " + entry.getUrl() + " to " + f.getPath() + "(md5 is : " + entry.getMd5() + ")");
+					downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar);
 				}
-				System.out.println(fileLength);
-				input = connection.getInputStream();
-				writeFile = new FileOutputStream(dest);
-				byte[] buffer = new byte[2048];
-				int read;
 
-				while((read = input.read(buffer)) > 0)
-				{
-					writeFile.write(buffer, 0, read);
-					progress(read);
-				}
-				writeFile.flush();
+				frame.dispose();
+				JOptionPane.showMessageDialog(null, "Installation is finish !", "Success", JOptionPane.INFORMATION_MESSAGE);
 			}
-			catch(IOException e)
+
+			public void downloadFile(final URL url, final File dest, final JProgressBar bar, final JProgressBar fullBar)
 			{
-				System.out.println("Couldn't download " + url);
-				e.printStackTrace();
-			}
-			finally
-			{
+				bar.setIndeterminate(true);
+
+				FileOutputStream fos = null;
+				BufferedReader reader = null;
+
 				try
 				{
-					writeFile.close();
-					input.close();
+					URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+					URL url2 = uri.toURL();
+					URLConnection connection = url2.openConnection();
+
+					int fileLength = connection.getContentLength();
+					if(fileLength == -1)
+					{
+						throw new IOException("Fichier non valide.");
+					}
+					else
+					{
+						bar.setMaximum(fileLength);
+					}
+
+					InputStream in = connection.getInputStream();
+					reader = new BufferedReader(new InputStreamReader(in));
+					fos = new FileOutputStream(dest);
+
+					long downloadStartTime = System.currentTimeMillis();
+					int downloadedAmount = 0;
+					byte[] buff = new byte[1024];
+
+					bar.setValue(0);
+					bar.setIndeterminate(false);
+
+					int n;
+					while((n = in.read(buff)) != -1)
+					{
+						fos.write(buff, 0, n);
+						bar.setValue(bar.getValue() + n);
+						fullBar.setValue(fullBar.getValue() + n);
+						downloadedAmount += n;
+						long timeLapse = System.currentTimeMillis() - downloadStartTime;
+						if(timeLapse >= 1000L)
+						{
+							float downloadSpeed = downloadedAmount / (float)timeLapse;
+							downloadedAmount = 0;
+							downloadStartTime += 1000L;
+							if(downloadSpeed > 1000.0F)
+							{
+								DecimalFormat df = new DecimalFormat();
+								df.setMaximumFractionDigits(2);
+								downloadSpeedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed / 1000.0F)) + " mo/s");
+							}
+							else
+							{
+								downloadSpeedLabel.setText("Speed : " + String.valueOf(downloadSpeed) + " ko/s");
+							}
+						}
+					}
 				}
-				catch(IOException e)
+				catch(Exception e)
 				{
 					e.printStackTrace();
+					frame.dispose();
+					JOptionPane.showMessageDialog(null, "Couldn't download : " + url.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+					interrupt();
+				}
+				finally
+				{
+					try
+					{
+						fos.flush();
+						fos.close();
+					}
+					catch(IOException e)
+					{
+						e.printStackTrace();
+					}
+
+					try
+					{
+						reader.close();
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
 				}
 			}
-		}
-		catch(URISyntaxException ex)
-		{
-			ex.printStackTrace();
-		}
-		catch(MalformedURLException ex)
-		{
-			ex.printStackTrace();
-		}
-	}
-	
-	public void progress(int i)
-	{
-		this.progressBar.setValue(this.progressBar.getValue() + i);
-		System.out.println(progressBar.getValue());
+		}.start();
 	}
 }
