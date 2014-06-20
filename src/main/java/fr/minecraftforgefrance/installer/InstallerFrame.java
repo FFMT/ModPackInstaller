@@ -22,8 +22,8 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Throwables;
 
-import fr.minecraftforgefrance.common.Constants;
 import fr.minecraftforgefrance.common.ProcessInstall;
+import fr.minecraftforgefrance.common.RemoteInfoReader;
 import fr.minecraftforgefrance.plusplus.PlusPlusGame;
 
 public class InstallerFrame extends JFrame
@@ -32,7 +32,7 @@ public class InstallerFrame extends JFrame
 
 	public InstallerFrame()
 	{
-		this.setTitle(Constants.MODSPACK_NAME + " Installer");
+		this.setTitle(RemoteInfoReader.instance().getModPackName() + " Installer");
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 
@@ -90,11 +90,11 @@ public class InstallerFrame extends JFrame
 		buttonpanel.add(install);
 		buttonpanel.add(cancel);
 
-		JLabel mc = new JLabel("Minecraft : " + Constants.MC_VERSION);
+		JLabel mc = new JLabel("Minecraft : " + RemoteInfoReader.instance().getMinecraftVersion());
 		mc.setAlignmentX(CENTER_ALIGNMENT);
 		mc.setAlignmentY(CENTER_ALIGNMENT);
 
-		JLabel forge = new JLabel("Forge : " + Constants.FORGE_VERSION);
+		JLabel forge = new JLabel("Forge : " + RemoteInfoReader.instance().getForgeVersion());
 		forge.setAlignmentX(CENTER_ALIGNMENT);
 		forge.setAlignmentY(CENTER_ALIGNMENT);
 

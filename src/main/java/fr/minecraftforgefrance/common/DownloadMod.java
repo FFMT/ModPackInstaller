@@ -24,7 +24,7 @@ public class DownloadMod
         List<FileEntry> result = Collections.synchronizedList(new ArrayList<FileEntry>());
         try
         {
-            URL resourceUrl = new URL(Constants.MODS_URL);
+            URL resourceUrl = new URL(RemoteInfoReader.instance().getSyncUrl());
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(resourceUrl.openStream());
@@ -44,7 +44,7 @@ public class DownloadMod
                     
                     if(size > 0L)
                     {
-                    	String link = Constants.MODS_URL + key;
+                    	String link = RemoteInfoReader.instance().getSyncUrl() + key;
                         result.add(new FileEntry(new URL(link), md5, key, size));
                     }
                 }

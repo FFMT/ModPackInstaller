@@ -18,7 +18,7 @@ public class Updater implements ITweaker
 		System.out.println("RUN UPDATER FRAME");
 		try
 		{
-			Class clazz = Class.forName("cpw.mods.fml.common.launcher.FMLTweaker");
+			Class<?> clazz = Class.forName("cpw.mods.fml.common.launcher.FMLTweaker");
 			fmlTweaker = (ITweaker)clazz.newInstance();
 		}
 		catch(ClassNotFoundException e)

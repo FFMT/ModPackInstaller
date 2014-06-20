@@ -44,11 +44,11 @@ public class ProcessInstall
 	private List<FileEntry> outdatedList;
 
 	private File mcDir = EnumOS.getMinecraftDefaultDir();
-	private File modPackDir = new File(new File(mcDir, "modpacks"), Constants.MODSPACK_NAME);
+	private File modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
 
 	public ProcessInstall()
 	{
-		this.frame = new JFrame("Install progress ...");
+		this.frame = new JFrame("Download mods and config ...");
 		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.frame.setVisible(true);
 		this.frame.setResizable(false);
@@ -85,6 +85,12 @@ public class ProcessInstall
 		{
 			this.deleteDeprecated();
 		}
+		else
+		{
+			this.frame.dispose();
+			JOptionPane.showMessageDialog(null, "Network error, check you connection", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 		this.downloadFiles();
 	}
 
@@ -117,7 +123,7 @@ public class ProcessInstall
 			modPackDir.delete();
 			modPackDir.mkdirs();
 		}
-		for(String dirName : Constants.SYNC_DIR)
+		for(String dirName : RemoteInfoReader.instance().getSyncDir())
 		{
 			File dir = new File(modPackDir, dirName);
 			if(dir.exists() && dir.isDirectory())
@@ -221,9 +227,8 @@ public class ProcessInstall
 					System.out.println("Download file " + entry.getUrl() + " to " + f.getPath() + "(md5 is : " + entry.getMd5() + ")");
 					downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar);
 				}
-
-				frame.dispose();
-				JOptionPane.showMessageDialog(null, "Installation is finish !", "Success", JOptionPane.INFORMATION_MESSAGE);
+				finish();
+				downloadLib();
 			}
 
 			public void downloadFile(final URL url, final File dest, final JProgressBar bar, final JProgressBar fullBar)
@@ -273,15 +278,15 @@ public class ProcessInstall
 							float downloadSpeed = downloadedAmount / (float)timeLapse;
 							downloadedAmount = 0;
 							downloadStartTime += 1000L;
+							DecimalFormat df = new DecimalFormat();
+							df.setMaximumFractionDigits(2);
 							if(downloadSpeed > 1000.0F)
 							{
-								DecimalFormat df = new DecimalFormat();
-								df.setMaximumFractionDigits(2);
-								downloadSpeedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed / 1000.0F)) + " mo/s");
+								downloadSpeedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed / 1024F)) + " mo/s");
 							}
 							else
 							{
-								downloadSpeedLabel.setText("Speed : " + String.valueOf(downloadSpeed) + " ko/s");
+								downloadSpeedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed)) + " ko/s");
 							}
 						}
 					}
@@ -316,5 +321,25 @@ public class ProcessInstall
 				}
 			}
 		}.start();
+	}
+	
+	public void finish()
+	{
+		frame.dispose();
+		JOptionPane.showMessageDialog(null, "Installation is finish !", "Success", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public void downloadLib()
+	{
+		frame.setName("Download libraries ...");
+		
+		/*
+        File librariesDir = new File(mcDir, "libraries");
+        //List<JsonNode> libraries = VersionInfo.getVersionInfo().getArrayNode("libraries");
+        int progress = 2; 
+        List<String> grabbed = Lists.newArrayList();
+        List<String> bad = Lists.newArrayList();
+        //progress = LibraryDownload.downloadInstalledLibraries(librariesDir, libraries, progress, grabbed, bad);
+         */
 	}
 }

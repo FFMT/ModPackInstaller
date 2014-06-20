@@ -2,22 +2,12 @@ package fr.minecraftforgefrance.installer;
 
 import javax.swing.UIManager;
 
+import fr.minecraftforgefrance.common.RemoteInfoReader;
+
 public class Installer
 {
 	public static void main(String[] args)
 	{
-		/*
-		System.out.println(EnumOS.getPlatform().name());
-		System.out.println(EnumOS.getMinecraftDefaultDir().getAbsolutePath());
-		for(DownloadEntry entry : DownloadMod.instance().getRemoteList())
-		{
-			System.out.println(entry.getUrl());
-			System.out.println(entry.getMd5());
-			System.out.println(entry.getSize());
-		}
-		System.out.println(DownloadMod.instance().time / 1000000L + "ms");
-		*/
-		
 		try
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -26,6 +16,7 @@ public class Installer
 		{
 			e.printStackTrace();
 		}
+		RemoteInfoReader.instance = new RemoteInfoReader(LocalInfoReader.instance().getRemoteUrl());
 		InstallerFrame frame = new InstallerFrame();
 		frame.run();
 	}
