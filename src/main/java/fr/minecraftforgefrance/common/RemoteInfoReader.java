@@ -10,6 +10,7 @@ import java.net.URLConnection;
 import javax.swing.JOptionPane;
 
 import argo.jdom.JdomParser;
+import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
 
 import com.google.common.base.Charsets;
@@ -78,6 +79,11 @@ public class RemoteInfoReader
 	public String getVersionTarget()
 	{
 		return data.getStringValue("install", "target");
+	}
+	
+	public JsonNode getProfileInfo()
+	{
+		return data.getNode("profile");
 	}
 
 	public File getForgePath(File root)

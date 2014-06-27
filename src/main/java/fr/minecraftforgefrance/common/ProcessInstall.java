@@ -1,21 +1,18 @@
 package fr.minecraftforgefrance.common;
 
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +22,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+
+import argo.jdom.JsonNode;
+
+import com.google.common.base.Function;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 import fr.minecraftforgefrance.installer.EnumOS;
 
@@ -48,9 +53,9 @@ public class ProcessInstall
 
 	public ProcessInstall()
 	{
-		this.frame = new JFrame("Download mods and config ...");
+		this.frame = new JFrame();
+		this.frame.setTitle("Download mods and config ...");
 		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		this.frame.setVisible(true);
 		this.frame.setResizable(false);
 		this.frame.setSize(500, 100);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -80,6 +85,8 @@ public class ProcessInstall
 		this.getLocalFile();
 		this.compare();
 		fullProgressBar.setMaximum(this.getTotalDownloadSize());
+
+		this.frame.setVisible(true);
 		System.out.println(fullProgressBar.getMaximum());
 		if(!remoteList.isEmpty())
 		{
@@ -225,121 +232,144 @@ public class ProcessInstall
 					}
 					currentDownload.setText(entry.getPath());
 					System.out.println("Download file " + entry.getUrl() + " to " + f.getPath() + "(md5 is : " + entry.getMd5() + ")");
-					downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar);
+					if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
+					{
+						frame.dispose();
+						interrupt();
+						JOptionPane.showMessageDialog(null, "Couldn't download : " + entry.getUrl().toString(), "Error", JOptionPane.ERROR_MESSAGE);
+					}
 				}
-				finish();
 				downloadLib();
-			}
-
-			public void downloadFile(final URL url, final File dest, final JProgressBar bar, final JProgressBar fullBar)
-			{
-				bar.setIndeterminate(true);
-
-				FileOutputStream fos = null;
-				BufferedReader reader = null;
-
-				try
-				{
-					URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-					URL url2 = uri.toURL();
-					URLConnection connection = url2.openConnection();
-
-					int fileLength = connection.getContentLength();
-					if(fileLength == -1)
-					{
-						throw new IOException("Fichier non valide.");
-					}
-					else
-					{
-						bar.setMaximum(fileLength);
-					}
-
-					InputStream in = connection.getInputStream();
-					reader = new BufferedReader(new InputStreamReader(in));
-					fos = new FileOutputStream(dest);
-
-					long downloadStartTime = System.currentTimeMillis();
-					int downloadedAmount = 0;
-					byte[] buff = new byte[1024];
-
-					bar.setValue(0);
-					bar.setIndeterminate(false);
-
-					int n;
-					while((n = in.read(buff)) != -1)
-					{
-						fos.write(buff, 0, n);
-						bar.setValue(bar.getValue() + n);
-						fullBar.setValue(fullBar.getValue() + n);
-						downloadedAmount += n;
-						long timeLapse = System.currentTimeMillis() - downloadStartTime;
-						if(timeLapse >= 1000L)
-						{
-							float downloadSpeed = downloadedAmount / (float)timeLapse;
-							downloadedAmount = 0;
-							downloadStartTime += 1000L;
-							DecimalFormat df = new DecimalFormat();
-							df.setMaximumFractionDigits(2);
-							if(downloadSpeed > 1000.0F)
-							{
-								downloadSpeedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed / 1024F)) + " mo/s");
-							}
-							else
-							{
-								downloadSpeedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed)) + " ko/s");
-							}
-						}
-					}
-				}
-				catch(Exception e)
-				{
-					e.printStackTrace();
-					frame.dispose();
-					JOptionPane.showMessageDialog(null, "Couldn't download : " + url.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-					interrupt();
-				}
-				finally
-				{
-					try
-					{
-						fos.flush();
-						fos.close();
-					}
-					catch(IOException e)
-					{
-						e.printStackTrace();
-					}
-
-					try
-					{
-						reader.close();
-					}
-					catch(Exception e)
-					{
-						e.printStackTrace();
-					}
-				}
 			}
 		}.start();
 	}
-	
+
+	public void downloadLib()
+	{
+		frame.setTitle("Download and extract libraries ...");
+
+		File librariesDir = new File(mcDir, "libraries");
+		List<JsonNode> libraries = RemoteInfoReader.instance().getProfileInfo().getArrayNode("libraries");
+		
+		List<LibEntry> libEntryList = new ArrayList<LibEntry>();
+		int max = 0;
+		for(JsonNode library : libraries)
+		{
+			List<String> checksums = null;
+			String libName = library.getStringValue("name");
+			if(library.isBooleanValue("required") && library.getBooleanValue("required"))
+			{
+				if(library.isArrayNode("checksums"))
+				{
+					checksums = Lists.newArrayList(Lists.transform(library.getArrayNode("checksums"), new Function<JsonNode, String>()
+					{
+						public String apply(JsonNode node)
+						{
+							return node.getText();
+						}
+					}));
+				}
+
+				System.out.println(String.format("Considering library %s", libName));
+				String[] nameparts = Iterables.toArray(Splitter.on(':').split(libName), String.class);
+				nameparts[0] = nameparts[0].replace('.', '/');
+				String jarName = nameparts[1] + '-' + nameparts[2] + ".jar";
+				String pathName = nameparts[0] + '/' + nameparts[1] + '/' + nameparts[2] + '/' + jarName;
+				File libPath = new File(librariesDir, pathName.replace('/', File.separatorChar));
+				String libURL = DownloadUtils.LIBRARIES_URL;
+				if(library.isStringValue("url"))
+				{
+					libURL = library.getStringValue("url") + "/";
+				}
+				if(libPath.exists() && DownloadUtils.checksumValid(libPath, checksums))
+				{
+					continue;
+				}
+
+				libPath.getParentFile().mkdirs();
+				libURL += pathName;
+				File pack = null;
+				boolean xz = false;
+				if(library.isBooleanValue("xz") && library.getBooleanValue("xz"))
+				{
+					xz = true;
+					pack = new File(libPath.getParentFile(), libPath.getName() + DownloadUtils.PACK_NAME);
+					libURL += DownloadUtils.PACK_NAME;
+				}
+				if(library.isStringValue("download"))
+				{
+					libURL = library.getStringValue("download");
+				}
+				try
+				{		
+					URL url = new URL(libURL);
+					URLConnection connection = url.openConnection();
+					int fileLength = connection.getContentLength();
+					max += fileLength;
+					libEntryList.add(new LibEntry(libURL, libName, libPath, pack, fileLength, xz));
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		this.fullProgressBar.setMaximum(max);
+		
+		for(LibEntry entry : libEntryList)
+		{
+			currentDownload.setText(String.format("Downloading library : %s", entry.getName()));
+			try
+			{
+				if(entry.isXZ())
+				{
+					if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getPackDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
+					{
+						frame.dispose();
+						JOptionPane.showMessageDialog(null, "Couldn't download : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
+					}
+					else
+					{
+						try
+						{
+							currentDownload.setText(String.format("Unpacking packed file %s", entry.getPackDest().toString()));
+							DownloadUtils.unpackLibrary(entry.getDest(), Files.toByteArray(entry.getPackDest()));
+							currentDownload.setText(String.format("Successfully unpacked packed file %s", entry.getPackDest().toString()));
+							entry.getPackDest().delete();
+						}
+						catch(Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+				else if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
+				{
+					frame.dispose();
+					JOptionPane.showMessageDialog(null, "Couldn't download : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			catch(HeadlessException e)
+			{
+				e.printStackTrace();
+			}
+			catch(MalformedURLException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		this.finish();
+	}
+
+	private void createProfile()
+	{
+
+	}
+
 	public void finish()
 	{
 		frame.dispose();
 		JOptionPane.showMessageDialog(null, "Installation is finish !", "Success", JOptionPane.INFORMATION_MESSAGE);
-	}
-	
-	public void downloadLib()
-	{
-		frame.setName("Download libraries ...");
-		
-		/*
-        File librariesDir = new File(mcDir, "libraries");
-        //List<JsonNode> libraries = VersionInfo.getVersionInfo().getArrayNode("libraries");
-        int progress = 2; 
-        List<String> grabbed = Lists.newArrayList();
-        List<String> bad = Lists.newArrayList();
-        //progress = LibraryDownload.downloadInstalledLibraries(librariesDir, libraries, progress, grabbed, bad);
-         */
 	}
 }
