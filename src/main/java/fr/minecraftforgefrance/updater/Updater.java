@@ -1,67 +1,74 @@
 package fr.minecraftforgefrance.updater;
 
 import java.io.File;
-import java.util.List;
 
-import net.minecraft.launchwrapper.ITweaker;
-import net.minecraft.launchwrapper.LaunchClassLoader;
+import javax.swing.JOptionPane;
 
-public class Updater implements ITweaker
+import argo.jdom.JdomParser;
+import argo.jdom.JsonRootNode;
+import argo.saj.InvalidSyntaxException;
+
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
+import com.google.common.io.Files;
+
+import fr.minecraftforgefrance.common.RemoteInfoReader;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+import net.minecraft.launchwrapper.Launch;
+
+public class Updater
 {
-	private ITweaker fmlTweaker;
-
-	public Updater()
+	public static void main(String[] args)
 	{
-		FrameThread thread = new FrameThread();
-		thread.start();
+		final OptionParser parser = new OptionParser();
+		parser.allowsUnrecognizedOptions();
+		final OptionSpec<File> gameDirOption = parser.accepts("gameDir", "The game directory").withRequiredArg().ofType(File.class);
+		final OptionSpec<String> modpackOption = parser.accepts("version", "The version we launched with").withRequiredArg();
 
-		System.out.println("RUN UPDATER FRAME");
+		final OptionSet options = parser.parse(args);
+		File mcDir = options.valueOf(gameDirOption);
+		String modpackName = options.valueOf(modpackOption);
+		File modPackDir = new File(new File(mcDir, "modpacks"), modpackName);
+
+		for(int i = 0; i < args.length; i++)
+		{
+			if("--gameDir".equals(args[i]))
+			{
+				args[i + 1] = modPackDir.getAbsolutePath();
+			}
+		}
+
+		System.out.println(modpackName);
+		System.out.println(modPackDir.getAbsolutePath());
+
+		File modpackInfo = new File(modPackDir, modpackName + ".json");
+		if(!modpackInfo.exists())
+		{
+			JOptionPane.showMessageDialog(null, "Fatal error with this profile, please install again", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		JdomParser jsonParser = new JdomParser();
+		JsonRootNode jsonProfileData;
+
 		try
 		{
-			Class<?> clazz = Class.forName("cpw.mods.fml.common.launcher.FMLTweaker");
-			fmlTweaker = (ITweaker)clazz.newInstance();
+			jsonProfileData = jsonParser.parse(Files.newReader(modpackInfo, Charsets.UTF_8));
 		}
-		catch(ClassNotFoundException e)
+		catch(InvalidSyntaxException e)
 		{
-			e.printStackTrace();
-			System.err.println("FML not found");
-			System.exit(-1);
+			JOptionPane.showMessageDialog(null, "Fatal error with this profile, please install again", "Error", JOptionPane.ERROR_MESSAGE);
+			throw Throwables.propagate(e);
 		}
-		catch(InstantiationException e)
+		catch(Exception e)
 		{
-			e.printStackTrace();
-			System.err.println("FML not found");
-			System.exit(-1);
+			JOptionPane.showMessageDialog(null, "Fatal error with this profile, please install again", "Error", JOptionPane.ERROR_MESSAGE);
+			throw Throwables.propagate(e);
 		}
-		catch(IllegalAccessException e)
-		{
-			e.printStackTrace();
-			System.err.println("FML not found");
-			System.exit(-1);
-		}
-	}
+		RemoteInfoReader.instance = new RemoteInfoReader(jsonProfileData.getStringValue("remote"));
 
-	@Override
-	public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile)
-	{
-		fmlTweaker.acceptOptions(args, gameDir, assetsDir, profile);
-	}
-
-	@Override
-	public void injectIntoClassLoader(LaunchClassLoader classLoader)
-	{
-		fmlTweaker.injectIntoClassLoader(classLoader);
-	}
-
-	@Override
-	public String getLaunchTarget()
-	{
-		return fmlTweaker.getLaunchTarget();
-	}
-
-	@Override
-	public String[] getLaunchArguments()
-	{
-		return fmlTweaker.getLaunchArguments();
+		Launch.main(args);
 	}
 }

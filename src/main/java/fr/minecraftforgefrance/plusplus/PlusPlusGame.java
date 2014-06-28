@@ -17,6 +17,8 @@ import javax.swing.JTextField;
 
 public class PlusPlusGame extends JFrame
 {
+	private static final long serialVersionUID = 1L;
+	
 	public static boolean isRunning;
 	private Random rand = new Random();
 	private JProgressBar progressBar;

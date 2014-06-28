@@ -3,17 +3,18 @@ package fr.minecraftforgefrance.common;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -23,12 +24,22 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import argo.format.PrettyJsonFormatter;
+import argo.jdom.JdomParser;
+import argo.jdom.JsonField;
 import argo.jdom.JsonNode;
+import argo.jdom.JsonNodeFactories;
+import argo.jdom.JsonRootNode;
+import argo.jdom.JsonStringNode;
+import argo.saj.InvalidSyntaxException;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
 import fr.minecraftforgefrance.installer.EnumOS;
@@ -246,11 +257,12 @@ public class ProcessInstall
 
 	public void downloadLib()
 	{
-		frame.setTitle("Download and extract libraries ...");
+		this.frame.setTitle("Download and extract libraries ...");
+		this.fullProgressBar.setValue(0);
 
 		File librariesDir = new File(mcDir, "libraries");
 		List<JsonNode> libraries = RemoteInfoReader.instance().getProfileInfo().getArrayNode("libraries");
-		
+
 		List<LibEntry> libEntryList = new ArrayList<LibEntry>();
 		int max = 0;
 		for(JsonNode library : libraries)
@@ -301,7 +313,7 @@ public class ProcessInstall
 					libURL = library.getStringValue("download");
 				}
 				try
-				{		
+				{
 					URL url = new URL(libURL);
 					URLConnection connection = url.openConnection();
 					int fileLength = connection.getContentLength();
@@ -314,9 +326,9 @@ public class ProcessInstall
 				}
 			}
 		}
-		
+
 		this.fullProgressBar.setMaximum(max);
-		
+
 		for(LibEntry entry : libEntryList)
 		{
 			currentDownload.setText(String.format("Downloading library : %s", entry.getName()));
@@ -359,12 +371,132 @@ public class ProcessInstall
 				e.printStackTrace();
 			}
 		}
-		this.finish();
+		this.createProfile();
 	}
 
 	private void createProfile()
 	{
+		String mcVersion = RemoteInfoReader.instance().getMinecraftVersion();
+		String modpackName = RemoteInfoReader.instance().getModPackName();
+		File launcherProfiles = new File(mcDir, "launcher_profiles.json");
+		if(!launcherProfiles.exists())
+		{
+			JOptionPane.showMessageDialog(null, "Minecraft launcher profile no found, you need to run the launcher first !", "Error", JOptionPane.ERROR_MESSAGE);
+			this.frame.dispose();
+		}
+		File versionRootDir = new File(mcDir, "versions");
+		File modpackVersionDir = new File(versionRootDir, modpackName);
+		if(!modpackVersionDir.exists())
+		{
+			modpackVersionDir.mkdirs();
+		}
+		File modpackJar = new File(modpackVersionDir, modpackName + ".jar");
+		File modpackJson = new File(modpackVersionDir, modpackName + ".json");
+		File minecraftJar = new File(new File(versionRootDir, mcVersion), mcVersion + ".jar");
 
+		if(minecraftJar.exists())
+		{
+			try
+			{
+				Files.copy(minecraftJar, modpackJar);
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			try
+			{
+				DownloadUtils.downloadFile(new URL("https://s3.amazonaws.com/Minecraft.Download/versions/" + mcVersion + "/" + mcVersion + ".jar"), modpackJar, this.fileProgressBar, this.fullProgressBar, this.downloadSpeedLabel);
+			}
+			catch(MalformedURLException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		JsonRootNode versionJson = JsonNodeFactories.object(RemoteInfoReader.instance().getProfileInfo().getFields());
+		try
+		{
+			BufferedWriter newWriter = Files.newWriter(modpackJson, Charsets.UTF_8);
+			PrettyJsonFormatter.fieldOrderPreservingPrettyJsonFormatter().format(versionJson, newWriter);
+			newWriter.close();
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "There was a problem writing the launcher version data,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+
+		JdomParser parser = new JdomParser();
+		JsonRootNode jsonProfileData;
+
+		try
+		{
+			jsonProfileData = parser.parse(Files.newReader(launcherProfiles, Charsets.UTF_8));
+		}
+		catch(InvalidSyntaxException e)
+		{
+			JOptionPane.showMessageDialog(null, "The launcher profile file is corrupted. Re-run the minecraft launcher to fix it!", "Error", JOptionPane.ERROR_MESSAGE);
+			throw Throwables.propagate(e);
+		}
+		catch(Exception e)
+		{
+			throw Throwables.propagate(e);
+		}
+
+		JsonField[] fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)),};
+
+		HashMap<JsonStringNode, JsonNode> profileCopy = Maps.newHashMap(jsonProfileData.getNode("profiles").getFields());
+		HashMap<JsonStringNode, JsonNode> rootCopy = Maps.newHashMap(jsonProfileData.getFields());
+		profileCopy.put(JsonNodeFactories.string(modpackName), JsonNodeFactories.object(fields));
+		JsonRootNode profileJsonCopy = JsonNodeFactories.object(profileCopy);
+
+		rootCopy.put(JsonNodeFactories.string("profiles"), profileJsonCopy);
+
+		jsonProfileData = JsonNodeFactories.object(rootCopy);
+
+		try
+		{
+			BufferedWriter newWriter = Files.newWriter(launcherProfiles, Charsets.UTF_8);
+			PrettyJsonFormatter.fieldOrderPreservingPrettyJsonFormatter().format(jsonProfileData, newWriter);
+			newWriter.close();
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "There was a problem writing the launch profile,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		this.writeLauncherInfo();
+	}
+
+	public void writeLauncherInfo()
+	{
+		File info = new File(this.modPackDir, RemoteInfoReader.instance().getModPackName() + ".json");
+		if(!info.exists())
+		{
+			try
+			{
+				info.createNewFile();
+			}
+			catch(IOException e)
+			{
+				throw Throwables.propagate(e);
+			}
+		}
+
+		JsonRootNode json = JsonNodeFactories.object(JsonNodeFactories.field("mc", JsonNodeFactories.string(RemoteInfoReader.instance().getMinecraftVersion())), JsonNodeFactories.field("forge", JsonNodeFactories.string(RemoteInfoReader.instance().getForgeVersion())), JsonNodeFactories.field("remote", JsonNodeFactories.string(RemoteInfoReader.instance().remoteUrl)));
+		try
+		{
+			BufferedWriter writer = Files.newWriter(info, Charsets.UTF_8);
+			PrettyJsonFormatter.fieldOrderPreservingPrettyJsonFormatter().format(json, writer);
+			writer.close();
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "There was a problem writing the launcher version data,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		this.finish();
 	}
 
 	public void finish()

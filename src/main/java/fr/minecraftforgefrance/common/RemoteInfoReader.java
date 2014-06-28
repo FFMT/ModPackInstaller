@@ -22,11 +22,12 @@ public class RemoteInfoReader
 {
 	public static RemoteInfoReader instance;
 	public final JsonRootNode data;
+	public final String remoteUrl;
 
 	public RemoteInfoReader(String url)
 	{
+		this.remoteUrl = url;
 		JdomParser parser = new JdomParser();
-
 		try
 		{
 			URI uri = new URI(url);
