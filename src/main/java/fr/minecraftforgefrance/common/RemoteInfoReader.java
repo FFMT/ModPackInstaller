@@ -1,6 +1,5 @@
 package fr.minecraftforgefrance.common;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -86,19 +85,9 @@ public class RemoteInfoReader
 	{
 		return data.getNode("profile");
 	}
-
-	public File getForgePath(File root)
+	
+	public String getWelcome()
 	{
-		String path = data.getStringValue("install", "path");
-		String[] split = Iterables.toArray(Splitter.on(':').omitEmptyStrings().split(path), String.class);
-		File dest = root;
-		Iterable<String> subSplit = Splitter.on('.').omitEmptyStrings().split(split[0]);
-		for(String part : subSplit)
-		{
-			dest = new File(dest, part);
-		}
-		dest = new File(new File(dest, split[1]), split[2]);
-		String fileName = split[1] + "-" + split[2] + ".jar";
-		return new File(dest, fileName);
+		return data.getStringValue("install", "welcome");
 	}
 }

@@ -1,5 +1,6 @@
 package fr.minecraftforgefrance.installer;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -10,6 +11,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URI;
+
+import javafx.scene.layout.Border;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -73,7 +77,9 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				runInstall();
+				dispose();
+				FileChecker checker = new FileChecker();
+				new ProcessInstall(checker, InstallerFrame.this, false);
 			}
 		});
 
@@ -91,6 +97,35 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 		buttonpanel.add(install);
 		buttonpanel.add(cancel);
 
+		JLabel welcome = new JLabel(RemoteInfoReader.instance().getWelcome());
+		welcome.setAlignmentX(CENTER_ALIGNMENT);
+		welcome.setAlignmentY(CENTER_ALIGNMENT);
+
+		JPanel sponsorPanel = new JPanel();
+		sponsorPanel.setLayout(new BoxLayout(sponsorPanel, BoxLayout.X_AXIS));
+		sponsorPanel.setAlignmentX(CENTER_ALIGNMENT);
+		sponsorPanel.setAlignmentY(CENTER_ALIGNMENT);
+
+		JButton sponsorButton = new JButton("Created by MFF");
+		sponsorButton.setAlignmentX(CENTER_ALIGNMENT);
+		sponsorButton.setAlignmentY(CENTER_ALIGNMENT);
+		sponsorButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				try
+				{
+					Desktop.getDesktop().browse(new URI("http://www.minecraftforgefrance.fr"));
+				}
+				catch(Exception ex)
+				{
+					JOptionPane.showMessageDialog(InstallerFrame.this, "An error occurred launching the browser", "Error launching browser", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		sponsorPanel.add(sponsorButton);
+
 		JLabel mc = new JLabel("Minecraft : " + RemoteInfoReader.instance().getMinecraftVersion());
 		mc.setAlignmentX(CENTER_ALIGNMENT);
 		mc.setAlignmentY(CENTER_ALIGNMENT);
@@ -99,6 +134,8 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 		forge.setAlignmentX(CENTER_ALIGNMENT);
 		forge.setAlignmentY(CENTER_ALIGNMENT);
 
+		panel.add(welcome);
+		panel.add(sponsorPanel);
 		panel.add(mc);
 		panel.add(forge);
 		panel.add(buttonpanel);
@@ -116,7 +153,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 		int x = (dim.width / 2) - (this.getSize().width / 2);
 		int y = (dim.height / 2) - (this.getSize().height / 2);
 		this.setLocation(x, y);
-		
+
 		addKeyListener(new KeyListener()
 		{
 			@Override
@@ -146,13 +183,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 	{
 		this.setVisible(true);
 	}
-	
-	public void runInstall()
-	{
-		this.dispose();
-		FileChecker checker = new FileChecker();
-		new ProcessInstall(checker, this, false);
-	}
+
 
 	@Override
 	public void onFinish()
