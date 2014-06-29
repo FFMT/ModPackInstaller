@@ -1,4 +1,4 @@
-package fr.minecraftforgefrance.installer;
+package fr.minecraftforgefrance.common;
 
 import java.io.File;
 import java.util.Locale;

@@ -22,11 +22,13 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Throwables;
 
+import fr.minecraftforgefrance.common.FileChecker;
+import fr.minecraftforgefrance.common.IInstallRunner;
 import fr.minecraftforgefrance.common.ProcessInstall;
 import fr.minecraftforgefrance.common.RemoteInfoReader;
 import fr.minecraftforgefrance.plusplus.PlusPlusGame;
 
-public class InstallerFrame extends JFrame
+public class InstallerFrame extends JFrame implements IInstallRunner
 {
 	private static final long serialVersionUID = 1L;
 
@@ -39,7 +41,7 @@ public class InstallerFrame extends JFrame
 		BufferedImage image;
 		try
 		{
-			image = ImageIO.read(this.getClass().getResourceAsStream("/logo.png"));
+			image = ImageIO.read(this.getClass().getResourceAsStream("/installer/logo.png"));
 		}
 		catch(IOException e)
 		{
@@ -71,8 +73,7 @@ public class InstallerFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				dispose();
-				new ProcessInstall();
+				runInstall();
 			}
 		});
 
@@ -144,5 +145,18 @@ public class InstallerFrame extends JFrame
 	public void run()
 	{
 		this.setVisible(true);
+	}
+	
+	public void runInstall()
+	{
+		this.dispose();
+		FileChecker checker = new FileChecker();
+		new ProcessInstall(checker, this, false);
+	}
+
+	@Override
+	public void onFinish()
+	{
+		JOptionPane.showMessageDialog(null, "Installation is finish !", "Success", JOptionPane.INFORMATION_MESSAGE);
 	}
 }

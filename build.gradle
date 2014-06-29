@@ -31,15 +31,10 @@ sourceCompatibility = '1.6'
 
 dependencies {
     compile 'net.sf.jopt-simple:jopt-simple:4.5'
-    compile 'net.sourceforge.argo:argo:3.7'
+    compile 'argo:argo:2.25_fixed'
     compile 'com.google.guava:guava:14.0'
     compile 'org.tukaani:xz:1.3'
 	compile 'net.minecraft:launchwrapper:1.9'
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
 }
 
 task fatJar(type: Jar, dependsOn: jar) {
@@ -51,7 +46,6 @@ task fatJar(type: Jar, dependsOn: jar) {
 fatJar.doFirst {
     from zipTree(jar.archivePath)
 }
-
 
 task shrinkJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
     inputs.file fatJar.archivePath
@@ -73,30 +67,35 @@ task shrinkOutput(type: Jar, dependsOn: shrinkJar) {
     manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.Installer' }
 }
 
+task updaterJar(type: Jar, dependsOn: "jar"){
+    from project.sourceSets.main.output
+        archiveName = "updater-${project.version}-thin.jar"
+        include "fr/minecraftforgefrance/updater/**"
+        include "fr/minecraftforgefrance/common/**"
+}
+
+task fullUpdaterJar(type: Jar, dependsOn: "updaterJar"){
+    inputs.file jar.archivePath
+    from(configurations.compile.collect { zipTree(it).matching { include 'org/tukaani/**/*.class' } })
+    archiveName = "updater-${project.version}-full.jar"
+}
+
+fullUpdaterJar.doFirst {
+    from zipTree(updaterJar.archivePath)
+}
+
 artifacts {
     archives fatJar
-    archives sourcesJar
     archives shrinkOutput
+	archives updaterJar
+	archives fullUpdaterJar
 }
 
 jar {
     classifier = 'thin'
     exclude 'argo/**'
+	exclude 'fr/minecraftforgefrance/updater/**'
     manifest { attributes 'Main-Class': 'fr.minecraftforgefrance.installer.Installer' }
-}
-
-uploadArchives {
-    repositories {
-        for (f in rootProject.repositories)
-        {
-            if (f.name.equals('filesrepo')) {
-                logger.info('Publishing to files server')
-                add f
-            }
-        }
-        logger.info('Publishing to repo folder')
-        add project.repositories.fileRepo
-    }
 }
 
 task wrapper(type: Wrapper) {

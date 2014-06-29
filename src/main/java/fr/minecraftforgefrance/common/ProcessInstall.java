@@ -5,14 +5,10 @@ import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import argo.format.JsonFormatter;
 import argo.format.PrettyJsonFormatter;
 import argo.jdom.JdomParser;
 import argo.jdom.JsonField;
@@ -42,8 +39,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
-import fr.minecraftforgefrance.installer.EnumOS;
-
 public class ProcessInstall
 {
 	private JFrame frame;
@@ -53,17 +48,21 @@ public class ProcessInstall
 	private JLabel downloadSpeedLabel;
 	private JLabel currentDownload;
 
-	private List<FileEntry> remoteList = DownloadMod.instance().getRemoteList();
-	private List<FileEntry> localList = new ArrayList<FileEntry>();
-
-	private List<FileEntry> missingList;
-	private List<FileEntry> outdatedList;
-
 	private File mcDir = EnumOS.getMinecraftDefaultDir();
 	private File modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
 
-	public ProcessInstall()
+	private final FileChecker fileChecker;
+	private final IInstallRunner runner;
+	private final boolean update;
+	
+	private static final JsonFormatter JSON_FORMATTER = new PrettyJsonFormatter();
+
+	public ProcessInstall(FileChecker file, IInstallRunner runner, boolean update)
 	{
+		this.fileChecker = file;
+		this.runner = runner;
+		this.update = update;
+
 		this.frame = new JFrame();
 		this.frame.setTitle("Download mods and config ...");
 		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -93,13 +92,11 @@ public class ProcessInstall
 
 		this.frame.setContentPane(panel);
 
-		this.getLocalFile();
-		this.compare();
 		fullProgressBar.setMaximum(this.getTotalDownloadSize());
 
 		this.frame.setVisible(true);
 		System.out.println(fullProgressBar.getMaximum());
-		if(!remoteList.isEmpty())
+		if(!this.fileChecker.remoteList.isEmpty())
 		{
 			this.deleteDeprecated();
 		}
@@ -115,104 +112,16 @@ public class ProcessInstall
 	private int getTotalDownloadSize()
 	{
 		int size = 0;
-		for(FileEntry entry : missingList)
+		for(FileEntry entry : this.fileChecker.missingList)
 		{
 			size += entry.getSize();
 		}
 		return size;
 	}
 
-	private void getLocalFile()
-	{
-		if(!mcDir.exists() || !mcDir.isDirectory())
-		{
-			frame.dispose();
-			JOptionPane.showMessageDialog(null, "Minecraft dir is missing, please run the minecraft launcher", "Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
-		if(!modPackDir.exists())
-		{
-			modPackDir.mkdirs();
-			return;
-		}
-		if(!modPackDir.isDirectory())
-		{
-			modPackDir.delete();
-			modPackDir.mkdirs();
-		}
-		for(String dirName : RemoteInfoReader.instance().getSyncDir())
-		{
-			File dir = new File(modPackDir, dirName);
-			if(dir.exists() && dir.isDirectory())
-			{
-				this.recursifAdd(localList, dir, modPackDir.getAbsolutePath());
-			}
-		}
-	}
-
-	private void recursifAdd(List<FileEntry> list, File dir, String modpackPath)
-	{
-		for(File file : dir.listFiles())
-		{
-			if(file.isDirectory())
-			{
-				recursifAdd(list, file, modpackPath);
-			}
-			else
-			{
-				list.add(new FileEntry(getMd5(file), file.getAbsolutePath().replace(modpackPath + File.separator, ""), file.length()));
-			}
-		}
-	}
-
-	private void compare()
-	{
-		this.missingList = new ArrayList<FileEntry>(remoteList);
-		this.missingList.removeAll(localList);
-
-		this.outdatedList = new ArrayList<FileEntry>(localList);
-		this.outdatedList.removeAll(remoteList);
-	}
-
-	public String getMd5(final File file)
-	{
-		DigestInputStream stream = null;
-		try
-		{
-			stream = new DigestInputStream(new FileInputStream(file), MessageDigest.getInstance("MD5"));
-			final byte[] buffer = new byte[65536];
-
-			int read = stream.read(buffer);
-			while(read >= 1)
-			{
-				read = stream.read(buffer);
-			}
-		}
-		catch(final Exception ignored)
-		{
-			return null;
-		}
-		finally
-		{
-			if(stream != null)
-			{
-				try
-				{
-					stream.close();
-				}
-				catch(final IOException localIOException)
-				{
-
-				}
-			}
-		}
-		return String.format("%1$032x", new Object[] {new BigInteger(1, stream.getMessageDigest().digest())});
-	}
-
 	public void deleteDeprecated()
 	{
-		for(FileEntry entry : outdatedList)
+		for(FileEntry entry : this.fileChecker.outdatedList)
 		{
 			File f = new File(modPackDir, entry.getPath());
 			if(f.delete())
@@ -234,7 +143,7 @@ public class ProcessInstall
 			@Override
 			public void run()
 			{
-				for(FileEntry entry : missingList)
+				for(FileEntry entry : fileChecker.missingList)
 				{
 					File f = new File(modPackDir, entry.getPath());
 					if(f.getParentFile() != null && !f.getParentFile().isDirectory())
@@ -371,19 +280,28 @@ public class ProcessInstall
 				e.printStackTrace();
 			}
 		}
+
+		this.finish();
+	}
+
+	public void finish()
+	{
+		this.frame.setTitle("finishing ...");
 		this.createProfile();
+		this.writeModPackInfo();
+		if(!this.update)
+		{
+			this.addToProfileList();
+		}
+
+		this.frame.dispose();
+		this.runner.onFinish();
 	}
 
 	private void createProfile()
 	{
 		String mcVersion = RemoteInfoReader.instance().getMinecraftVersion();
 		String modpackName = RemoteInfoReader.instance().getModPackName();
-		File launcherProfiles = new File(mcDir, "launcher_profiles.json");
-		if(!launcherProfiles.exists())
-		{
-			JOptionPane.showMessageDialog(null, "Minecraft launcher profile no found, you need to run the launcher first !", "Error", JOptionPane.ERROR_MESSAGE);
-			this.frame.dispose();
-		}
 		File versionRootDir = new File(mcDir, "versions");
 		File modpackVersionDir = new File(versionRootDir, modpackName);
 		if(!modpackVersionDir.exists())
@@ -421,14 +339,24 @@ public class ProcessInstall
 		try
 		{
 			BufferedWriter newWriter = Files.newWriter(modpackJson, Charsets.UTF_8);
-			PrettyJsonFormatter.fieldOrderPreservingPrettyJsonFormatter().format(versionJson, newWriter);
+			JSON_FORMATTER.format(versionJson, newWriter);
 			newWriter.close();
 		}
 		catch(Exception e)
 		{
 			JOptionPane.showMessageDialog(null, "There was a problem writing the launcher version data,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
 		}
+	}
 
+	public void addToProfileList()
+	{
+		String modpackName = RemoteInfoReader.instance().getModPackName();
+		File launcherProfiles = new File(mcDir, "launcher_profiles.json");
+		if(!launcherProfiles.exists())
+		{
+			JOptionPane.showMessageDialog(null, "Minecraft launcher profile no found, you need to run the launcher first !", "Error", JOptionPane.ERROR_MESSAGE);
+			this.frame.dispose();
+		}
 		JdomParser parser = new JdomParser();
 		JsonRootNode jsonProfileData;
 
@@ -460,17 +388,16 @@ public class ProcessInstall
 		try
 		{
 			BufferedWriter newWriter = Files.newWriter(launcherProfiles, Charsets.UTF_8);
-			PrettyJsonFormatter.fieldOrderPreservingPrettyJsonFormatter().format(jsonProfileData, newWriter);
+			JSON_FORMATTER.format(jsonProfileData, newWriter);
 			newWriter.close();
 		}
 		catch(Exception e)
 		{
 			JOptionPane.showMessageDialog(null, "There was a problem writing the launch profile,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
 		}
-		this.writeLauncherInfo();
 	}
 
-	public void writeLauncherInfo()
+	public void writeModPackInfo()
 	{
 		File info = new File(this.modPackDir, RemoteInfoReader.instance().getModPackName() + ".json");
 		if(!info.exists())
@@ -489,19 +416,12 @@ public class ProcessInstall
 		try
 		{
 			BufferedWriter writer = Files.newWriter(info, Charsets.UTF_8);
-			PrettyJsonFormatter.fieldOrderPreservingPrettyJsonFormatter().format(json, writer);
+			JSON_FORMATTER.format(json, writer);
 			writer.close();
 		}
 		catch(Exception e)
 		{
 			JOptionPane.showMessageDialog(null, "There was a problem writing the launcher version data,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
 		}
-		this.finish();
-	}
-
-	public void finish()
-	{
-		frame.dispose();
-		JOptionPane.showMessageDialog(null, "Installation is finish !", "Success", JOptionPane.INFORMATION_MESSAGE);
 	}
 }
