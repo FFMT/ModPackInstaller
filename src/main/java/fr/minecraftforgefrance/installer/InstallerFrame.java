@@ -13,8 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 
-import javafx.scene.layout.Border;
-
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;

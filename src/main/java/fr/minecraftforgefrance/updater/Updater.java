@@ -24,7 +24,8 @@ import fr.minecraftforgefrance.common.RemoteInfoReader;
 
 public class Updater implements IInstallRunner
 {
-	private String[] arguments;
+	final private String[] arguments;
+	private boolean forgeUpdate, mcUpdate;
 	public static void main(String[] args)
 	{
 		new Updater(args);
@@ -109,7 +110,17 @@ public class Updater implements IInstallRunner
 		{
 			return false;
 		}
-		return !checker.missingList.isEmpty() || !checker.outdatedList.isEmpty() || !RemoteInfoReader.instance().getMinecraftVersion().equals(mcVersion) || !RemoteInfoReader.instance().getForgeVersion().equals(forgeVersion);
+		if(!RemoteInfoReader.instance().getMinecraftVersion().equals(mcVersion))
+		{
+			this.mcUpdate = true;
+			return true;
+		}
+		if(!RemoteInfoReader.instance().getForgeVersion().equals(forgeVersion))
+		{
+			this.forgeUpdate = true;
+			return true;
+		}
+		return !checker.missingList.isEmpty() || !checker.outdatedList.isEmpty();
 	}
 
 	public void runMinecraft(String[] args)
@@ -120,6 +131,13 @@ public class Updater implements IInstallRunner
 	@Override
 	public void onFinish()
 	{
-		runMinecraft(arguments);
+		if(this.mcUpdate || this.forgeUpdate)
+		{
+			JOptionPane.showMessageDialog(null, "Update finished successfully, but you need to restart the game.", "Success !", JOptionPane.INFORMATION_MESSAGE);
+		}
+		else
+		{
+			runMinecraft(this.arguments);
+		}
 	}
 }
