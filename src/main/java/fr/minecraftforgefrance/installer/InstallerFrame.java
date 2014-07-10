@@ -1,6 +1,5 @@
 package fr.minecraftforgefrance.installer;
 
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -11,7 +10,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URI;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -50,7 +48,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 			throw Throwables.propagate(e);
 		}
 
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -80,6 +78,17 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 				new ProcessInstall(checker, InstallerFrame.this, false);
 			}
 		});
+		
+		JButton credit = new JButton("Credit");
+		credit.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				CreditFrame credit = new CreditFrame(dim);
+				credit.setVisible(true);
+			}
+		});
 
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ActionListener()
@@ -93,36 +102,12 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 
 		JPanel buttonpanel = new JPanel();
 		buttonpanel.add(install);
+		buttonpanel.add(credit);
 		buttonpanel.add(cancel);
 
 		JLabel welcome = new JLabel(RemoteInfoReader.instance().getWelcome());
 		welcome.setAlignmentX(CENTER_ALIGNMENT);
 		welcome.setAlignmentY(CENTER_ALIGNMENT);
-
-		JPanel sponsorPanel = new JPanel();
-		sponsorPanel.setLayout(new BoxLayout(sponsorPanel, BoxLayout.X_AXIS));
-		sponsorPanel.setAlignmentX(CENTER_ALIGNMENT);
-		sponsorPanel.setAlignmentY(CENTER_ALIGNMENT);
-
-		JButton sponsorButton = new JButton("Created by MFF");
-		sponsorButton.setAlignmentX(CENTER_ALIGNMENT);
-		sponsorButton.setAlignmentY(CENTER_ALIGNMENT);
-		sponsorButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				try
-				{
-					Desktop.getDesktop().browse(new URI("http://www.minecraftforgefrance.fr"));
-				}
-				catch(Exception ex)
-				{
-					JOptionPane.showMessageDialog(InstallerFrame.this, "An error occurred launching the browser", "Error launching browser", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
-		sponsorPanel.add(sponsorButton);
 
 		JLabel mc = new JLabel("Minecraft : " + RemoteInfoReader.instance().getMinecraftVersion());
 		mc.setAlignmentX(CENTER_ALIGNMENT);
@@ -133,7 +118,6 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 		forge.setAlignmentY(CENTER_ALIGNMENT);
 
 		panel.add(welcome);
-		panel.add(sponsorPanel);
 		panel.add(mc);
 		panel.add(forge);
 		panel.add(buttonpanel);

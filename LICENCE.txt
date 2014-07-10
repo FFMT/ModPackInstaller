@@ -1,0 +1,20 @@
+English :
+
+This software has been created by robin4002 and kevin_68 to allow
+its users to install a minecraft modpack and keep it up-to-date.
+You may use, modify, share our work only if you give the credit to 
+the authors, don't modify the "credits" button and of course the 
+software should not be used commercially (that includes adf.ly).
+If you contribute to the software your name will be mentioned in 
+the credits.
+
+
+French :
+
+Ce logiciel a été créé par robin4002 et kevin_68 afin de fournir
+une solution pour installer facilement un modpack minecraft et le
+garder à jour. Vous pouvez l'utiliser, le modifier et le distribuer
+à condition de citer les auteurs et de ne pas supprimer ou modifier
+le bouton de crédit et également, de ne pas l'utiliser commercialement
+(cela inclut adf.ly). Si vous contribuez au logiciel, votre nom sera
+ajouté dans la liste des crédits.
