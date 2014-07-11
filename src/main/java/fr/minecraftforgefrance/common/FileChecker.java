@@ -33,7 +33,7 @@ public class FileChecker
 	{
 		if(!mcDir.exists() || !mcDir.isDirectory())
 		{
-			JOptionPane.showMessageDialog(null, "Minecraft dir is missing, please run the minecraft launcher", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "The Minecraft dir is missing, please run the official Minecraft launcher", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 

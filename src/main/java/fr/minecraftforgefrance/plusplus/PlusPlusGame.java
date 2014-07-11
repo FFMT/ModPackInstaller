@@ -74,11 +74,11 @@ public class PlusPlusGame extends JFrame
 		});
 
 		field = new JTextField(20);
-		field.setText("Level: " + 1);
+		field.setText("Level : " + 1);
 		field.setEditable(false);
 
 		field2 = new JTextField(20);
-		field2.setText("Clicks for next level: " + 10);
+		field2.setText("Clicks until next level : " + 10);
 		field2.setEditable(false);
 
 		pan = new JPanel();
@@ -126,8 +126,8 @@ public class PlusPlusGame extends JFrame
 			totalClick++;
 		}
 
-		field.setText("Level: " + level + "|Score: " + score);
-		field2.setText("Clicks for next level: " + (int)(10 * Math.pow(2, level - 1)) + " | Current: " + currentClick + " | Total real click: " + totalClick);
+		field.setText("Level : " + level + " | Score : " + score);
+		field2.setText("Clicks until next level : " + (int)(10 * Math.pow(2, level - 1)) + " | Current : " + currentClick + " | Total clicks : " + totalClick);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int x = rand.nextInt(dim.width - 400);
 		int y = rand.nextInt(dim.height - 200);

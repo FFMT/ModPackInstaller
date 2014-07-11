@@ -32,7 +32,7 @@ public class LocalInfoReader
 		}
 		catch(InvalidSyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, "Local json is invalid, please check with http://jsonlint.com/", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "The local json is not valid, please check it with this website : http://jsonlint.com/", "Error", JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 	}

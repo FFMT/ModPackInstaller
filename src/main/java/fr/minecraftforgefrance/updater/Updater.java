@@ -34,11 +34,11 @@ public class Updater implements IInstallRunner
 	public Updater(String[] args)
 	{
 		long start = System.currentTimeMillis();
-		System.out.println("Start updater !");
+		System.out.println("Starting updater !");
 		final OptionParser parser = new OptionParser();
 		parser.allowsUnrecognizedOptions();
 		final OptionSpec<File> gameDirOption = parser.accepts("gameDir", "The game directory").withRequiredArg().ofType(File.class);
-		final OptionSpec<String> modpackOption = parser.accepts("version", "The version we launched with").withRequiredArg();
+		final OptionSpec<String> modpackOption = parser.accepts("version", "The version used").withRequiredArg();
 
 		final OptionSet options = parser.parse(args);
 		File mcDir = options.valueOf(gameDirOption);
@@ -60,7 +60,7 @@ public class Updater implements IInstallRunner
 		File modpackInfo = new File(modPackDir, modpackName + ".json");
 		if(!modpackInfo.exists())
 		{
-			JOptionPane.showMessageDialog(null, "Fatal error with this profile, please install again", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Errored profile, please reinstall it!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -73,21 +73,21 @@ public class Updater implements IInstallRunner
 		}
 		catch(InvalidSyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, "Fatal error with this profile, please install again", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Errored profile, please reinstall it!", "Error", JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "Fatal error with this profile, please install again", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Errored profile, please reinstall it!", "Error", JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		RemoteInfoReader.instance = new RemoteInfoReader(jsonProfileData.getStringValue("remote"));
 		FileChecker checker = new FileChecker();
 		if(!shouldUpdate(jsonProfileData.getStringValue("mc"), jsonProfileData.getStringValue("forge"), checker))
 		{
-			System.out.println("No update found, running minecraft !");
+			System.out.println("No update found, launching minecraft !");
 			long end = System.currentTimeMillis();
-			System.out.println("time to check update : " + (end - start) + " ms");
+			System.out.println("Update checked in : " + (end - start) + " ms");
 			runMinecraft(args);
 		}
 		else
@@ -133,7 +133,7 @@ public class Updater implements IInstallRunner
 	{
 		if(this.mcUpdate || this.forgeUpdate)
 		{
-			JOptionPane.showMessageDialog(null, "Update finished successfully, but you need to restart the game.", "Success !", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Update finished successfully, please restart the game.", "Success !", JOptionPane.INFORMATION_MESSAGE);
 		}
 		else
 		{
