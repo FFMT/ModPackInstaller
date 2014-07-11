@@ -35,11 +35,7 @@ public class CreditFrame extends JFrame
 			{
 				try
 				{
-					// [utybo] Toujours vérifier que l'OS et le navigateur sont compatibles!
-					if(Desktop.isDesktopSupported())
-						Desktop.getDesktop().browse(new URI("http://www.minecraftforgefrance.fr"));
-					else
-						throw new Exception();
+					Desktop.getDesktop().browse(new URI("http://www.minecraftforgefrance.fr"));
 				}
 				catch(Exception ex)
 				{
