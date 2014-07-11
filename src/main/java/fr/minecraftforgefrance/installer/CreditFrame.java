@@ -19,12 +19,12 @@ public class CreditFrame extends JFrame
 
 	public CreditFrame(Dimension dim)
 	{
-		this.setTitle("Credit");
+		this.setTitle("Credits");
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
+
 		JButton sponsorButton = new JButton("Minecraft Forge France website");
 		sponsorButton.setAlignmentX(CENTER_ALIGNMENT);
 		sponsorButton.setAlignmentY(CENTER_ALIGNMENT);
@@ -39,27 +39,22 @@ public class CreditFrame extends JFrame
 				}
 				catch(Exception ex)
 				{
-					JOptionPane.showMessageDialog(CreditFrame.this, "An error occurred launching the browser", "Error launching browser", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(CreditFrame.this, "An error occurred while opening URL : http://www.minecraftforgefrance.fr", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
-		
+
 		JPanel sponsorPanel = new JPanel();
 		sponsorPanel.setLayout(new BoxLayout(sponsorPanel, BoxLayout.X_AXIS));
 		sponsorPanel.setAlignmentX(CENTER_ALIGNMENT);
 		sponsorPanel.setAlignmentY(CENTER_ALIGNMENT);
 		sponsorPanel.add(sponsorButton);
-		
+
 		JLabel text = new JLabel();
-		text.setText("<html><center>Created by :</center><br>"
-				+ "robin4002 - main programm, project initiator<br>"
-				+ "kevin_68 - graphic interface<br>"
-				+ "<br><center>Other contribution :</center><br>"
-				+ "cpw - creator of the forge installer that served as inspiration<br>"
-				+ "Forge team</html>");
+		text.setText("<html><center>Created by :</center><br>" + "robin4002 - Main program, project founder<br>" + "kevin_68 - GUI<br>" + "<br><center>Other contributions :</center><br>" + "cpw - Creator of the Forge installer that served as an inspiration<br>" + "Forge team</html>");
 		text.setAlignmentX(CENTER_ALIGNMENT);
 		text.setAlignmentY(CENTER_ALIGNMENT);
-		
+
 		panel.add(text);
 		panel.add(sponsorPanel);
 		this.add(panel);

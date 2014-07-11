@@ -58,7 +58,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 		logoLabel.setAlignmentY(CENTER_ALIGNMENT);
 		if(image.getWidth() > dim.width || image.getHeight() + 10 > dim.height)
 		{
-			JOptionPane.showMessageDialog(null, "Image is too big", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "The image is too big!", "Error", JOptionPane.ERROR_MESSAGE);
 			this.dispose();
 		}
 		else
@@ -79,7 +79,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 			}
 		});
 		
-		JButton credit = new JButton("Credit");
+		JButton credit = new JButton("Credits");
 		credit.addActionListener(new ActionListener()
 		{
 			@Override
@@ -170,6 +170,6 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 	@Override
 	public void onFinish()
 	{
-		JOptionPane.showMessageDialog(null, "Installation is finish !", "Success", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, "Installation finished!", "Success", JOptionPane.INFORMATION_MESSAGE);
 	}
 }

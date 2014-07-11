@@ -50,7 +50,7 @@ public class DownloadUtils
 			int fileLength = connection.getContentLength();
 			if(fileLength == -1)
 			{
-				System.out.println("invalid url");
+				System.err.println("Invalid URL");
 				return false;
 			}
 			else
@@ -166,11 +166,11 @@ public class DownloadUtils
 			boolean failed = !checksums.contains(files.get("checksums.sha1"));
 			if(failed)
 			{
-				System.out.println("checksums.sha1 failed validation");
+				System.err.println("Failed checksums.sha1 validation!");
 			}
 			else
 			{
-				System.out.println("checksums.sha1 validated successfully");
+				System.out.println("Successfully validated checksums.sha1");
 				for(String hash : hashes)
 				{
 					if(hash.trim().equals("") || !hash.contains(" "))
@@ -182,12 +182,12 @@ public class DownloadUtils
 
 					if(!files.containsKey(target) || checksum == null)
 					{
-						System.out.println("    " + target + " : missing");
+						System.err.println("    " + target + " : missing");
 						failed = true;
 					}
 					else if(!checksum.equals(validChecksum))
 					{
-						System.out.println("    " + target + " : failed (" + checksum + ", " + validChecksum + ")");
+						System.err.println("    " + target + " : failed (" + checksum + ", " + validChecksum + ")");
 						failed = true;
 					}
 				}
@@ -238,7 +238,7 @@ public class DownloadUtils
 		String end = new String(decompressed, decompressed.length - 4, 4);
 		if(!end.equals("SIGN"))
 		{
-			System.out.println("Unpacking failed, signature missing " + end);
+			System.err.println("Unpacking failed, missing signature :" + end);
 			return;
 		}
 

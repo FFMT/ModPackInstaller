@@ -64,7 +64,7 @@ public class ProcessInstall
 		this.update = update;
 
 		this.frame = new JFrame();
-		this.frame.setTitle("Download mods and config ...");
+		this.frame.setTitle("Downloading mods and config files...");
 		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.frame.setResizable(false);
 		this.frame.setSize(500, 100);
@@ -103,7 +103,7 @@ public class ProcessInstall
 		else
 		{
 			this.frame.dispose();
-			JOptionPane.showMessageDialog(null, "Network error, check you connection", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Network error, please check your Internet connection", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		this.downloadFiles();
@@ -126,12 +126,12 @@ public class ProcessInstall
 			File f = new File(modPackDir, entry.getPath());
 			if(f.delete())
 			{
-				System.out.println(f.getPath() + " was removed. Its md5 was : " + entry.getMd5());
+				System.err.println(f.getPath() + " was removed. Its md5 was : " + entry.getMd5());
 			}
 			else
 			{
 				frame.dispose();
-				JOptionPane.showMessageDialog(null, "Couldn't delete file : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Could not delete file : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -151,12 +151,12 @@ public class ProcessInstall
 						f.getParentFile().mkdirs();
 					}
 					currentDownload.setText(entry.getPath());
-					System.out.println("Download file " + entry.getUrl() + " to " + f.getPath() + "(md5 is : " + entry.getMd5() + ")");
+					System.out.println("Downloading file " + entry.getUrl() + " to " + f.getPath() + "(md5 is : " + entry.getMd5() + ")");
 					if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
 					{
 						frame.dispose();
 						interrupt();
-						JOptionPane.showMessageDialog(null, "Couldn't download : " + entry.getUrl().toString(), "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Could not download : " + entry.getUrl().toString(), "Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 				downloadLib();
