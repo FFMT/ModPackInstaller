@@ -36,12 +36,12 @@ public class RemoteInfoReader
 		}
 		catch(URISyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, "Could not read remote info, please check your Internet connection", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotreadremote"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "Could not read remote info, please check your Internet connection", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotreadremote"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 	}

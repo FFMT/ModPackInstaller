@@ -13,19 +13,21 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import fr.minecraftforgefrance.common.Localization;
+
 public class CreditFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
 	public CreditFrame(Dimension dim)
 	{
-		this.setTitle("Credits");
+		this.setTitle(Localization.LANG.getTranslation("scr.title.credits"));
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		JButton sponsorButton = new JButton("Minecraft Forge France website");
+		JButton sponsorButton = new JButton(Localization.LANG.getTranslation("scr.btn.mffwebsite"));
 		sponsorButton.setAlignmentX(CENTER_ALIGNMENT);
 		sponsorButton.setAlignmentY(CENTER_ALIGNMENT);
 		sponsorButton.addActionListener(new ActionListener()
@@ -39,7 +41,7 @@ public class CreditFrame extends JFrame
 				}
 				catch(Exception ex)
 				{
-					JOptionPane.showMessageDialog(CreditFrame.this, "An error occurred while opening URL : http://www.minecraftforgefrance.fr", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(CreditFrame.this, Localization.LANG.getTranslation("err.cannotopenurl") + " : http://www.minecraftforgefrance.fr", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -51,7 +53,7 @@ public class CreditFrame extends JFrame
 		sponsorPanel.add(sponsorButton);
 
 		JLabel text = new JLabel();
-		text.setText("<html><center>Created by :</center><br>" + "robin4002 - Main program, project founder<br>" + "kevin_68 - GUI<br>" + "<br><center>Other contributions :</center><br>" + "cpw - Creator of the Forge installer that served as an inspiration<br>" + "Forge team</html>");
+		text.setText("<html><center>" + Localization.LANG.getTranslation("scr.credits.createdby") + " :</center><br>" + "robin4002 - " + Localization.LANG.getTranslation("scr.credits.robin") + "<br>" + "kevin_68 - " + Localization.LANG.getTranslation("scr.credits.kevin") + "<br>" + "<br><center>" + Localization.LANG.getTranslation("scr.credits.othercontributions") + " :</center><br>" + "cpw - " + Localization.LANG.getTranslation("scr.credits.cpw") + "<br>" + Localization.LANG.getTranslation("scr.credits.forgeteam") + "</html>");
 		text.setAlignmentX(CENTER_ALIGNMENT);
 		text.setAlignmentY(CENTER_ALIGNMENT);
 
