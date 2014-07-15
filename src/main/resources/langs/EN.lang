@@ -1,0 +1,102 @@
+#################################################
+# ------------------ CREDITS ------------------ #
+#                                               #
+# English translations by utybo & the FFMT      #
+# This file is used by MinkJ (Localization API) #
+#                                               #
+#                                               #
+#                                               #
+# ------------------- MODEL ------------------- #
+#                                               #
+# Comments start with a #                       #
+# The model is key.here=Translation here        #
+# Do not put any space beside the =             #
+#################################################
+
+
+###############################
+#   CONSOLE/SCREEN MESSAGES   #
+###############################
+# Errors
+err.invalidurl=Invalid URL
+err.checksumvalidation=Failed checksums.sha1 validation!
+err.checksumnotfound=checksums.sha1 was not found, validation failed
+err.missingsignature=Unpacking failed, missing signature
+err.mcdirmissing=The Minecraft dir is missing, please run the official Minecraft launcher
+err.mcprofilemissing=Minecraft launcher profile not found, please run the official Minecraft launcher
+err.mcprofilecorrupted=The launcher profile file is corrupted. Please re-run the minecraft launcher to fix it!
+err.networkerror=Network error, please check your Internet connection
+err.cannotdeletefile=Could not delete file
+err.cannotdownload=Could not download
+err.cannotwriteversion=There was a problem while writing the launcher version. Is it write protected?
+err.cannotwriteprofile=There was a problem while writing the launcher profile. Is it write protected?
+err.cannotreadremote=Could not read remote info, please check your Internet connection
+err.cannotopenurl=An error occurred while opening URL
+err.bigimage=The image is too big!
+err.cannotfindlocalinfo=Local information not found, file /installer/local_info.json is missing in the jar
+err.invalidjson=The local json is not valid, please check it with this website : http://jsonlint.com/
+err.erroredprofile=Errored profile, please re-install it!
+
+# Tasks done
+ok.fileunpacked=Successfully unpacked packed file
+ok.fileremovedwithmd5=$f was removed. Its md5 was : $m
+ok.checksumvalidation=Successfully validated checksums.sha1
+ok.jarvalidated=Jar contents validated successfully
+ok.installationfinished=Installation finished!
+ok.noupdatefound=No update found, launching minecraft!
+ok.updatecheckedin=Update checked in
+ok.updatefinished=Update finished successfully, please restart the game!
+# Processes running
+proc.unpackingfile=Unpacking packed file
+proc.downloadinglib=Downloading library
+proc.consideringlib=Considering library
+proc.downloadinglibs=Downloading and extracting libraries...
+proc.downloadingfile=Downloading file $f to $t (its md5 is $m)
+proc.downloadingmods=Downloading mods and config files...
+proc.checkingchecksum=Checking \" $p \" internal checksums
+proc.startingupdater=Starting the Updater...
+
+
+
+####################
+#   SCREEN STUFF   #
+####################
+# Titles
+scr.title.credits=Credits
+
+# Buttons
+scr.btn.mffwebsite=Minecraft Forge France website
+scr.btn.install=Install
+scr.btn.credits=Credits
+
+# CREDITS
+scr.credits.createdby=Created by
+scr.credits.robin=Main program, project founder
+scr.credits.kevin=GUI
+scr.credits.othercontributions=Other contributions
+scr.credits.cpw=Creator of the Forge installer that served as an inspiration
+scr.credits.forgeteam=The Forge Team
+
+
+
+#####################
+#   MISCELLANEOUS   #
+#####################
+misc.finishing=Finishing...
+misc.speed=Speed
+misc.missing=Missing
+misc.failed=Failed
+misc.error=Error
+misc.cancel=Cancel
+misc.success=Success
+misc.installer=Installer
+
+
+
+#############
+#   ?????   #
+#############
+egg.name=The ++ Game
+egg.level=Level
+egg.score=Score
+egg.untilnextlevel=Clicks until next level

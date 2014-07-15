@@ -19,6 +19,7 @@ import com.google.common.io.Files;
 
 import fr.minecraftforgefrance.common.FileChecker;
 import fr.minecraftforgefrance.common.IInstallRunner;
+import fr.minecraftforgefrance.common.Localization;
 import fr.minecraftforgefrance.common.ProcessInstall;
 import fr.minecraftforgefrance.common.RemoteInfoReader;
 
@@ -28,6 +29,7 @@ public class Updater implements IInstallRunner
 	private boolean forgeUpdate, mcUpdate;
 	public static void main(String[] args)
 	{
+		Localization.init();
 		new Updater(args);
 	}
 	
@@ -60,7 +62,7 @@ public class Updater implements IInstallRunner
 		File modpackInfo = new File(modPackDir, modpackName + ".json");
 		if(!modpackInfo.exists())
 		{
-			JOptionPane.showMessageDialog(null, "Errored profile, please reinstall it!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.erroredprofile"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -73,21 +75,21 @@ public class Updater implements IInstallRunner
 		}
 		catch(InvalidSyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, "Errored profile, please reinstall it!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.erroredprofile"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "Errored profile, please reinstall it!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.erroredprofile"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		RemoteInfoReader.instance = new RemoteInfoReader(jsonProfileData.getStringValue("remote"));
 		FileChecker checker = new FileChecker();
 		if(!shouldUpdate(jsonProfileData.getStringValue("mc"), jsonProfileData.getStringValue("forge"), checker))
 		{
-			System.out.println("No update found, launching minecraft !");
+			System.out.println(Localization.LANG.getTranslation("ok.noupdatefound"));
 			long end = System.currentTimeMillis();
-			System.out.println("Update checked in : " + (end - start) + " ms");
+			System.out.println(Localization.LANG.getTranslation("ok.updatecheckedin") + " : " + (end - start) + " ms");
 			runMinecraft(args);
 		}
 		else
@@ -133,7 +135,7 @@ public class Updater implements IInstallRunner
 	{
 		if(this.mcUpdate || this.forgeUpdate)
 		{
-			JOptionPane.showMessageDialog(null, "Update finished successfully, please restart the game.", "Success !", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("ok.updatefinished"), Localization.LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
 		}
 		else
 		{

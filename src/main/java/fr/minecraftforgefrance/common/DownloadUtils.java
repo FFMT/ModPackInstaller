@@ -50,7 +50,7 @@ public class DownloadUtils
 			int fileLength = connection.getContentLength();
 			if(fileLength == -1)
 			{
-				System.err.println("Invalid URL");
+				System.err.println(Localization.LANG.getTranslation("err.invalidurl"));
 				return false;
 			}
 			else
@@ -86,11 +86,11 @@ public class DownloadUtils
 					df.setMaximumFractionDigits(2);
 					if(downloadSpeed > 1000.0F)
 					{
-						speedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed / 1024F)) + " mo/s");
+						speedLabel.setText(Localization.LANG.getTranslation("misc.speed") + " : " + String.valueOf(df.format(downloadSpeed / 1024F)) + " mo/s");
 					}
 					else
 					{
-						speedLabel.setText("Speed : " + String.valueOf(df.format(downloadSpeed)) + " ko/s");
+						speedLabel.setText(Localization.LANG.getTranslation("misc.speed") + " : " + String.valueOf(df.format(downloadSpeed)) + " ko/s");
 					}
 				}
 			}
@@ -138,7 +138,7 @@ public class DownloadUtils
 
 	public static boolean validateJar(File libPath, byte[] data, List<String> checksums) throws IOException
 	{
-		System.out.println("Checking \"" + libPath.getAbsolutePath() + "\" internal checksums");
+		System.out.println(Localization.LANG.getTranslation("proc.checkingchecksum").replace("$p", libPath.getAbsolutePath()));
 
 		HashMap<String, String> files = new HashMap<String, String>();
 		String[] hashes = null;
@@ -166,11 +166,11 @@ public class DownloadUtils
 			boolean failed = !checksums.contains(files.get("checksums.sha1"));
 			if(failed)
 			{
-				System.err.println("Failed checksums.sha1 validation!");
+				System.err.println(Localization.LANG.getTranslation("err.checksumvalidation"));
 			}
 			else
 			{
-				System.out.println("Successfully validated checksums.sha1");
+				System.out.println(Localization.LANG.getTranslation("ok.checksumvalidation"));
 				for(String hash : hashes)
 				{
 					if(hash.trim().equals("") || !hash.contains(" "))
@@ -182,12 +182,12 @@ public class DownloadUtils
 
 					if(!files.containsKey(target) || checksum == null)
 					{
-						System.err.println("    " + target + " : missing");
+						System.err.println("    " + target + " : " + Localization.LANG.getTranslation("misc.missing").toLowerCase());
 						failed = true;
 					}
 					else if(!checksum.equals(validChecksum))
 					{
-						System.err.println("    " + target + " : failed (" + checksum + ", " + validChecksum + ")");
+						System.err.println("    " + target + " : " + Localization.LANG.getTranslation("misc.failed").toLowerCase() + " (" + checksum + ", " + validChecksum + ")");
 						failed = true;
 					}
 				}
@@ -195,14 +195,14 @@ public class DownloadUtils
 
 			if(!failed)
 			{
-				System.out.println("Jar contents validated successfully");
+				System.out.println(Localization.LANG.getTranslation("ok.jarvalidated"));
 			}
 
 			return !failed;
 		}
 		else
 		{
-			System.out.println("checksums.sha1 was not found, validation failed");
+			System.out.println(Localization.LANG.getTranslation("err.checksumnotfound"));
 			return false; // Missing checksums
 		}
 	}
@@ -238,7 +238,7 @@ public class DownloadUtils
 		String end = new String(decompressed, decompressed.length - 4, 4);
 		if(!end.equals("SIGN"))
 		{
-			System.err.println("Unpacking failed, missing signature :" + end);
+			System.err.println(Localization.LANG.getTranslation("err.missingsignature") + " : " + end);
 			return;
 		}
 

@@ -54,7 +54,7 @@ public class ProcessInstall
 	private final FileChecker fileChecker;
 	private final IInstallRunner runner;
 	private final boolean update;
-	
+
 	private static final JsonFormatter JSON_FORMATTER = new PrettyJsonFormatter();
 
 	public ProcessInstall(FileChecker file, IInstallRunner runner, boolean update)
@@ -64,7 +64,7 @@ public class ProcessInstall
 		this.update = update;
 
 		this.frame = new JFrame();
-		this.frame.setTitle("Downloading mods and config files...");
+		this.frame.setTitle(Localization.LANG.getTranslation("proc.downloadingmods"));
 		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.frame.setResizable(false);
 		this.frame.setSize(500, 100);
@@ -103,7 +103,7 @@ public class ProcessInstall
 		else
 		{
 			this.frame.dispose();
-			JOptionPane.showMessageDialog(null, "Network error, please check your Internet connection", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.networkerror"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		this.downloadFiles();
@@ -126,12 +126,12 @@ public class ProcessInstall
 			File f = new File(modPackDir, entry.getPath());
 			if(f.delete())
 			{
-				System.err.println(f.getPath() + " was removed. Its md5 was : " + entry.getMd5());
+				System.out.println(Localization.LANG.getTranslation("ok.fileremovedwithmd5").replace("$f", f.getPath()).replace("$m", entry.getMd5()));
 			}
 			else
 			{
 				frame.dispose();
-				JOptionPane.showMessageDialog(null, "Could not delete file : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdeletefile") + " : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -151,12 +151,12 @@ public class ProcessInstall
 						f.getParentFile().mkdirs();
 					}
 					currentDownload.setText(entry.getPath());
-					System.out.println("Downloading file " + entry.getUrl() + " to " + f.getPath() + "(md5 is : " + entry.getMd5() + ")");
+					System.out.println(Localization.LANG.getTranslation("proc.downloadingfile").replace("$f", entry.getUrl().toString()).replace("$t", f.getPath()).replace("$m", entry.getMd5()));
 					if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
 					{
 						frame.dispose();
 						interrupt();
-						JOptionPane.showMessageDialog(null, "Could not download : " + entry.getUrl().toString(), "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 					}
 				}
 				downloadLib();
@@ -166,7 +166,7 @@ public class ProcessInstall
 
 	public void downloadLib()
 	{
-		this.frame.setTitle("Download and extract libraries ...");
+		this.frame.setTitle(Localization.LANG.getTranslation("proc.downloadinglibs"));
 		this.fullProgressBar.setValue(0);
 
 		File librariesDir = new File(mcDir, "libraries");
@@ -191,7 +191,7 @@ public class ProcessInstall
 					}));
 				}
 
-				System.out.println(String.format("Considering library %s", libName));
+				System.out.println(Localization.LANG.getTranslation("proc.consideringlib") + " " + libName);
 				String[] nameparts = Iterables.toArray(Splitter.on(':').split(libName), String.class);
 				nameparts[0] = nameparts[0].replace('.', '/');
 				String jarName = nameparts[1] + '-' + nameparts[2] + ".jar";
@@ -240,7 +240,7 @@ public class ProcessInstall
 
 		for(LibEntry entry : libEntryList)
 		{
-			currentDownload.setText(String.format("Downloading library : %s", entry.getName()));
+			currentDownload.setText(Localization.LANG.getTranslation("proc.downloadinglib") + entry.getName());
 			try
 			{
 				if(entry.isXZ())
@@ -248,15 +248,15 @@ public class ProcessInstall
 					if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getPackDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
 					{
 						frame.dispose();
-						JOptionPane.showMessageDialog(null, "Couldn't download : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 					}
 					else
 					{
 						try
 						{
-							currentDownload.setText(String.format("Unpacking packed file %s", entry.getPackDest().toString()));
+							currentDownload.setText(Localization.LANG.getTranslation("proc.unpackingfile") + " : " + entry.getPackDest().toString());
 							DownloadUtils.unpackLibrary(entry.getDest(), Files.toByteArray(entry.getPackDest()));
-							currentDownload.setText(String.format("Successfully unpacked packed file %s", entry.getPackDest().toString()));
+							currentDownload.setText(Localization.LANG.getTranslation("ok.fileunpacked") + " : " + entry.getPackDest().toString());
 							entry.getPackDest().delete();
 						}
 						catch(Exception e)
@@ -268,7 +268,7 @@ public class ProcessInstall
 				else if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
 				{
 					frame.dispose();
-					JOptionPane.showMessageDialog(null, "Couldn't download : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 			catch(HeadlessException e)
@@ -286,7 +286,7 @@ public class ProcessInstall
 
 	public void finish()
 	{
-		this.frame.setTitle("finishing ...");
+		this.frame.setTitle(Localization.LANG.getTranslation("misc.finishing"));
 		this.createProfile();
 		this.writeModPackInfo();
 		if(!this.update)
@@ -344,7 +344,8 @@ public class ProcessInstall
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "There was a problem writing the launcher version data,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
+			// TODO translation
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotwriteversion"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -354,7 +355,7 @@ public class ProcessInstall
 		File launcherProfiles = new File(mcDir, "launcher_profiles.json");
 		if(!launcherProfiles.exists())
 		{
-			JOptionPane.showMessageDialog(null, "Minecraft launcher profile no found, you need to run the launcher first !", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.mcprofilemissing"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			this.frame.dispose();
 		}
 		JdomParser parser = new JdomParser();
@@ -366,7 +367,7 @@ public class ProcessInstall
 		}
 		catch(InvalidSyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, "The launcher profile file is corrupted. Re-run the minecraft launcher to fix it!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.mcprofilecorrupted"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(Exception e)
@@ -393,7 +394,7 @@ public class ProcessInstall
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "There was a problem writing the launch profile,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotwriteprofile"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -421,7 +422,7 @@ public class ProcessInstall
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "There was a problem writing the launcher version data,  is it write protected?", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotwriteversion"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

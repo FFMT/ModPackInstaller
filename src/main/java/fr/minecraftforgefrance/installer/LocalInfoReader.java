@@ -13,6 +13,8 @@ import argo.saj.InvalidSyntaxException;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 
+import fr.minecraftforgefrance.common.Localization;
+
 public class LocalInfoReader
 {
 	private static final LocalInfoReader INSTANCE = new LocalInfoReader();
@@ -27,12 +29,12 @@ public class LocalInfoReader
 		}
 		catch(IOException e)
 		{
-			JOptionPane.showMessageDialog(null, "Local information not found, file /installer/local_info.json is missing in the jar", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotfindlocalinfo"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(InvalidSyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, "The local json is not valid, please check it with this website : http://jsonlint.com/", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.invalidjson"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 	}
