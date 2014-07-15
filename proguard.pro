@@ -11,8 +11,6 @@
     public static void main(java.lang.String[]);
 }
 
--keep class fr.minecraftforgefrance.updater.Updater
-
 -keepclassmembers class * {
     static final %                *;
     static final java.lang.String *;
