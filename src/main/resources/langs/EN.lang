@@ -70,12 +70,7 @@ scr.btn.install=Install
 scr.btn.credits=Credits
 
 # CREDITS
-scr.credits.createdby=Created by
-scr.credits.robin=Main program, project founder
-scr.credits.kevin=GUI
-scr.credits.othercontributions=Other contributions
-scr.credits.cpw=Creator of the Forge installer that served as an inspiration
-scr.credits.forgeteam=The Forge Team
+scr.credits.html=<html><center>Created by :</center><br>robin4002 - project founder<br>kevin_68 - GUI<br>Utybo - Translation system<br><br><center>Other contributions :</center><br>cpw - Creator of the Forge installer that served as an inspiration<br>The Forge Team</html>
 
 
 

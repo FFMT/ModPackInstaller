@@ -53,7 +53,7 @@ public class CreditFrame extends JFrame
 		sponsorPanel.add(sponsorButton);
 
 		JLabel text = new JLabel();
-		text.setText("<html><center>" + Localization.LANG.getTranslation("scr.credits.createdby") + " :</center><br>" + "robin4002 - " + Localization.LANG.getTranslation("scr.credits.robin") + "<br>" + "kevin_68 - " + Localization.LANG.getTranslation("scr.credits.kevin") + "<br>" + "<br><center>" + Localization.LANG.getTranslation("scr.credits.othercontributions") + " :</center><br>" + "cpw - " + Localization.LANG.getTranslation("scr.credits.cpw") + "<br>" + Localization.LANG.getTranslation("scr.credits.forgeteam") + "</html>");
+		text.setText(Localization.LANG.getTranslation("scr.credits.html"));
 		text.setAlignmentX(CENTER_ALIGNMENT);
 		text.setAlignmentY(CENTER_ALIGNMENT);
 

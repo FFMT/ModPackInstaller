@@ -3,8 +3,6 @@ package fr.minecraftforgefrance.common;
 import java.io.File;
 import java.util.Locale;
 
-import javax.swing.JOptionPane;
-
 import utybo.minkj.locale.MinkJ;
 
 public class Localization
@@ -32,41 +30,11 @@ public class Localization
 		}
 		try
 		{
-			LANG.setSelectedLanguage(((Language)JOptionPane.showInputDialog(null, "Choose your language :", "", JOptionPane.QUESTION_MESSAGE, null, Language.values(), Language.ENGLISH)).getLocale());
+			LANG.setSelectedLanguage(new Locale(System.getProperty("user.language")));
 		}
 		catch(NullPointerException ex)
 		{
 			return;
-		}
-	}
-
-	private enum Language
-	{
-		ENGLISH("English", Locale.ENGLISH), FRENCH("Français", Locale.FRENCH);
-
-		private String name;
-		private Locale locale;
-
-		private Language(String name, Locale locale)
-		{
-			this.name = name;
-			this.locale = locale;
-		}
-
-		public String getName()
-		{
-			return name;
-		}
-
-		public Locale getLocale()
-		{
-			return locale;
-		}
-
-		@Override
-		public String toString()
-		{
-			return getName();
 		}
 	}
 }
