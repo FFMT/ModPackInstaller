@@ -1,6 +1,5 @@
 package fr.minecraftforgefrance.common;
 
-import java.io.File;
 import java.util.Locale;
 
 import utybo.minkj.locale.MinkJ;
@@ -14,8 +13,8 @@ public class Localization
 		try
 		{
 			long systime = System.currentTimeMillis();
-			LANG.loadTranslationsFromFile(Locale.FRENCH, new File(Localization.class.getResource("/langs/FR.lang").toURI()));
-			LANG.loadTranslationsFromFile(Locale.ENGLISH, new File(Localization.class.getResource("/langs/EN.lang").toURI()));
+			LANG.loadTranslationsFromFile(Locale.FRENCH, Localization.class.getResourceAsStream("/langs/FR.lang"));
+			LANG.loadTranslationsFromFile(Locale.ENGLISH, Localization.class.getResourceAsStream("/langs/EN.lang"));
 			long time = System.currentTimeMillis() - systime;
 			System.out.println("Loaded localization files in " + time + " ms!");
 			if(time > 1000)
