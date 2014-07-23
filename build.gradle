@@ -28,7 +28,7 @@ repositories {
 
 group = 'net.minecraftforgefrance'
 archivesBaseName = 'installer'
-version = '1.0'
+version = '1.0.1'
 targetCompatibility = '1.6'
 sourceCompatibility = '1.6'
 
@@ -76,11 +76,15 @@ task updaterJar(type: Jar, dependsOn: "jar"){
         archiveName = "updater-${project.version}-thin.jar"
         include "fr/minecraftforgefrance/updater/**"
         include "fr/minecraftforgefrance/common/**"
+		include "langs/**"
 }
 
 task fullUpdaterJar(type: Jar, dependsOn: "updaterJar"){
     inputs.file jar.archivePath
-    from(configurations.compile.collect { zipTree(it).matching { include 'org/tukaani/**/*.class' } })
+    from(configurations.compile.collect { zipTree(it).matching { 
+	include 'org/tukaani/**/*.class'
+	include 'utybo/minkj/**/*.class'
+	} })
     archiveName = "updater-${project.version}-full.jar"
 }
 
