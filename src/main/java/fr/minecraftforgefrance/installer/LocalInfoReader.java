@@ -1,5 +1,6 @@
 package fr.minecraftforgefrance.installer;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,7 +14,6 @@ import argo.saj.InvalidSyntaxException;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 
-import fr.minecraftforgefrance.common.Localization;
 
 public class LocalInfoReader
 {
@@ -29,12 +29,12 @@ public class LocalInfoReader
 		}
 		catch(IOException e)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotfindlocalinfo"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotfindlocalinfo"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(InvalidSyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.invalidjson"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.invalidjson"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 	}

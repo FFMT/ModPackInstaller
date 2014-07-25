@@ -1,5 +1,7 @@
 package fr.minecraftforgefrance.common;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
@@ -64,7 +66,7 @@ public class ProcessInstall
 		this.update = update;
 
 		this.frame = new JFrame();
-		this.frame.setTitle(Localization.LANG.getTranslation("proc.downloadingmods"));
+		this.frame.setTitle(LANG.getTranslation("proc.downloadingmods"));
 		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.frame.setResizable(false);
 		this.frame.setSize(500, 100);
@@ -103,7 +105,7 @@ public class ProcessInstall
 		else
 		{
 			this.frame.dispose();
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.networkerror"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.networkerror"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		this.downloadFiles();
@@ -126,12 +128,12 @@ public class ProcessInstall
 			File f = new File(modPackDir, entry.getPath());
 			if(f.delete())
 			{
-				System.out.println(Localization.LANG.getTranslation("ok.fileremovedwithmd5").replace("$f", f.getPath()).replace("$m", entry.getMd5()));
+				System.out.println(LANG.getTranslation("ok.fileremovedwithmd5").replace("$f", f.getPath()).replace("$m", entry.getMd5()));
 			}
 			else
 			{
 				frame.dispose();
-				JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdeletefile") + " : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdeletefile") + " : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -151,12 +153,12 @@ public class ProcessInstall
 						f.getParentFile().mkdirs();
 					}
 					currentDownload.setText(entry.getPath());
-					System.out.println(Localization.LANG.getTranslation("proc.downloadingfile").replace("$f", entry.getUrl().toString()).replace("$t", f.getPath()).replace("$m", entry.getMd5()));
+					System.out.println(LANG.getTranslation("proc.downloadingfile").replace("$f", entry.getUrl().toString()).replace("$t", f.getPath()).replace("$m", entry.getMd5()));
 					if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
 					{
 						frame.dispose();
 						interrupt();
-						JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 					}
 				}
 				downloadLib();
@@ -166,7 +168,7 @@ public class ProcessInstall
 
 	public void downloadLib()
 	{
-		this.frame.setTitle(Localization.LANG.getTranslation("proc.downloadinglibs"));
+		this.frame.setTitle(LANG.getTranslation("proc.downloadinglibs"));
 		this.fullProgressBar.setValue(0);
 
 		File librariesDir = new File(mcDir, "libraries");
@@ -191,7 +193,7 @@ public class ProcessInstall
 					}));
 				}
 
-				System.out.println(Localization.LANG.getTranslation("proc.consideringlib") + " " + libName);
+				System.out.println(LANG.getTranslation("proc.consideringlib") + " " + libName);
 				String[] nameparts = Iterables.toArray(Splitter.on(':').split(libName), String.class);
 				nameparts[0] = nameparts[0].replace('.', '/');
 				String jarName = nameparts[1] + '-' + nameparts[2] + ".jar";
@@ -240,7 +242,7 @@ public class ProcessInstall
 
 		for(LibEntry entry : libEntryList)
 		{
-			currentDownload.setText(Localization.LANG.getTranslation("proc.downloadinglib") + entry.getName());
+			currentDownload.setText(LANG.getTranslation("proc.downloadinglib") + entry.getName());
 			try
 			{
 				if(entry.isXZ())
@@ -248,15 +250,15 @@ public class ProcessInstall
 					if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getPackDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
 					{
 						frame.dispose();
-						JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 					}
 					else
 					{
 						try
 						{
-							currentDownload.setText(Localization.LANG.getTranslation("proc.unpackingfile") + " : " + entry.getPackDest().toString());
+							currentDownload.setText(LANG.getTranslation("proc.unpackingfile") + " : " + entry.getPackDest().toString());
 							DownloadUtils.unpackLibrary(entry.getDest(), Files.toByteArray(entry.getPackDest()));
-							currentDownload.setText(Localization.LANG.getTranslation("ok.fileunpacked") + " : " + entry.getPackDest().toString());
+							currentDownload.setText(LANG.getTranslation("ok.fileunpacked") + " : " + entry.getPackDest().toString());
 							entry.getPackDest().delete();
 						}
 						catch(Exception e)
@@ -268,7 +270,7 @@ public class ProcessInstall
 				else if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
 				{
 					frame.dispose();
-					JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 			catch(HeadlessException e)
@@ -286,7 +288,7 @@ public class ProcessInstall
 
 	public void finish()
 	{
-		this.frame.setTitle(Localization.LANG.getTranslation("misc.finishing"));
+		this.frame.setTitle(LANG.getTranslation("misc.finishing"));
 		this.createProfile();
 		this.writeModPackInfo();
 		if(!this.update)
@@ -345,7 +347,7 @@ public class ProcessInstall
 		catch(Exception e)
 		{
 			// TODO translation
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotwriteversion"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotwriteversion"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -355,7 +357,7 @@ public class ProcessInstall
 		File launcherProfiles = new File(mcDir, "launcher_profiles.json");
 		if(!launcherProfiles.exists())
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.mcprofilemissing"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcprofilemissing"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			this.frame.dispose();
 		}
 		JdomParser parser = new JdomParser();
@@ -367,7 +369,7 @@ public class ProcessInstall
 		}
 		catch(InvalidSyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.mcprofilecorrupted"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcprofilecorrupted"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(Exception e)
@@ -394,7 +396,7 @@ public class ProcessInstall
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotwriteprofile"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotwriteprofile"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -422,7 +424,7 @@ public class ProcessInstall
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotwriteversion"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotwriteversion"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
