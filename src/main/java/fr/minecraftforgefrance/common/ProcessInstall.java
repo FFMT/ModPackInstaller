@@ -145,28 +145,37 @@ public class ProcessInstall
 			@Override
 			public void run()
 			{
-				for(FileEntry entry : fileChecker.missingList)
+				downloadMod(this);
+				if(runner.shouldDownloadLib())
 				{
-					File f = new File(modPackDir, entry.getPath());
-					if(f.getParentFile() != null && !f.getParentFile().isDirectory())
-					{
-						f.getParentFile().mkdirs();
-					}
-					currentDownload.setText(entry.getPath());
-					System.out.println(LANG.getTranslation("proc.downloadingfile").replace("$f", entry.getUrl().toString()).replace("$t", f.getPath()).replace("$m", entry.getMd5()));
-					if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
-					{
-						frame.dispose();
-						interrupt();
-						JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-					}
+					downloadLib(this);
 				}
-				downloadLib();
+				finish();
 			}
 		}.start();
 	}
 
-	public void downloadLib()
+	public void downloadMod(Thread thread)
+	{
+		for(FileEntry entry : fileChecker.missingList)
+		{
+			File f = new File(modPackDir, entry.getPath());
+			if(f.getParentFile() != null && !f.getParentFile().isDirectory())
+			{
+				f.getParentFile().mkdirs();
+			}
+			currentDownload.setText(entry.getPath());
+			System.out.println(LANG.getTranslation("proc.downloadingfile").replace("$f", entry.getUrl().toString()).replace("$t", f.getPath()).replace("$m", entry.getMd5()));
+			if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
+			{
+				frame.dispose();
+				thread.interrupt();
+				JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	public void downloadLib(Thread thread)
 	{
 		this.frame.setTitle(LANG.getTranslation("proc.downloadinglibs"));
 		this.fullProgressBar.setValue(0);
@@ -249,6 +258,7 @@ public class ProcessInstall
 				{
 					if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getPackDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
 					{
+						thread.interrupt();
 						frame.dispose();
 						JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 					}
@@ -269,6 +279,7 @@ public class ProcessInstall
 				}
 				else if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
 				{
+					thread.interrupt();
 					frame.dispose();
 					JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -282,14 +293,12 @@ public class ProcessInstall
 				e.printStackTrace();
 			}
 		}
-
-		this.finish();
 	}
 
 	public void finish()
 	{
 		this.frame.setTitle(LANG.getTranslation("misc.finishing"));
-		this.createProfile();
+		this.createOrUpdateProfile();
 		this.writeModPackInfo();
 		if(!this.update)
 		{
@@ -300,7 +309,7 @@ public class ProcessInstall
 		this.runner.onFinish();
 	}
 
-	private void createProfile()
+	private void createOrUpdateProfile()
 	{
 		String mcVersion = RemoteInfoReader.instance().getMinecraftVersion();
 		String modpackName = RemoteInfoReader.instance().getModPackName();
@@ -346,7 +355,6 @@ public class ProcessInstall
 		}
 		catch(Exception e)
 		{
-			// TODO translation
 			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotwriteversion"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -377,7 +385,15 @@ public class ProcessInstall
 			throw Throwables.propagate(e);
 		}
 
-		JsonField[] fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)),};
+		JsonField[] fields = null;
+		if(RemoteInfoReader.instance().hasArgument())
+		{
+			fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("javaArgs", JsonNodeFactories.string(RemoteInfoReader.instance().getArgument()))};
+		}
+		else
+		{
+			fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName))};
+		}
 
 		HashMap<JsonStringNode, JsonNode> profileCopy = Maps.newHashMap(jsonProfileData.getNode("profiles").getFields());
 		HashMap<JsonStringNode, JsonNode> rootCopy = Maps.newHashMap(jsonProfileData.getFields());

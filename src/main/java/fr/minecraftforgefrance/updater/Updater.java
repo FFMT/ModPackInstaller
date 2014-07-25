@@ -144,4 +144,10 @@ public class Updater implements IInstallRunner
 			runMinecraft(this.arguments);
 		}
 	}
+
+	@Override
+	public boolean shouldDownloadLib()
+	{
+		return forgeUpdate;
+	}
 }

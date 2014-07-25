@@ -84,7 +84,7 @@ misc.failed=Failed
 misc.error=Error
 misc.cancel=Cancel
 misc.success=Success
-misc.installer=Installer
+misc.installer=%s Installer
 
 
 

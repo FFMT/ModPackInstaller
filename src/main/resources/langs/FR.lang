@@ -85,7 +85,7 @@ misc.failed=Échoué
 misc.error=Erreur
 misc.cancel=Annuler
 misc.success=Succès
-misc.installer=Installeur
+misc.installer=Installeur de %s
 
 
 

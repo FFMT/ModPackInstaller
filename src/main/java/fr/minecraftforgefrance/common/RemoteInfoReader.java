@@ -92,4 +92,14 @@ public class RemoteInfoReader
 	{
 		return data.getStringValue("install", "welcome");
 	}
+	
+	public boolean hasArgument()
+	{
+		return data.isStringValue("install", "JVMarg");
+	}
+	
+	public String getArgument()
+	{
+		return data.getStringValue("install", "JVMarg");
+	}
 }
