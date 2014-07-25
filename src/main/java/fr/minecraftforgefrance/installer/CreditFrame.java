@@ -1,5 +1,7 @@
 package fr.minecraftforgefrance.installer;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -13,21 +15,19 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import fr.minecraftforgefrance.common.Localization;
-
 public class CreditFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
 	public CreditFrame(Dimension dim)
 	{
-		this.setTitle(Localization.LANG.getTranslation("scr.title.credits"));
+		this.setTitle(LANG.getTranslation("scr.title.credits"));
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		JButton sponsorButton = new JButton(Localization.LANG.getTranslation("scr.btn.mffwebsite"));
+		JButton sponsorButton = new JButton(LANG.getTranslation("scr.btn.mffwebsite"));
 		sponsorButton.setAlignmentX(CENTER_ALIGNMENT);
 		sponsorButton.setAlignmentY(CENTER_ALIGNMENT);
 		sponsorButton.addActionListener(new ActionListener()
@@ -41,7 +41,7 @@ public class CreditFrame extends JFrame
 				}
 				catch(Exception ex)
 				{
-					JOptionPane.showMessageDialog(CreditFrame.this, Localization.LANG.getTranslation("err.cannotopenurl") + " : http://www.minecraftforgefrance.fr", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(CreditFrame.this, LANG.getTranslation("err.cannotopenurl") + " : http://www.minecraftforgefrance.fr", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -53,7 +53,7 @@ public class CreditFrame extends JFrame
 		sponsorPanel.add(sponsorButton);
 
 		JLabel text = new JLabel();
-		text.setText(Localization.LANG.getTranslation("scr.credits.html"));
+		text.setText(LANG.getTranslation("scr.credits.html"));
 		text.setAlignmentX(CENTER_ALIGNMENT);
 		text.setAlignmentY(CENTER_ALIGNMENT);
 

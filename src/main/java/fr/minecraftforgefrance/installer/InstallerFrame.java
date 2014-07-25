@@ -24,7 +24,7 @@ import com.google.common.base.Throwables;
 
 import fr.minecraftforgefrance.common.FileChecker;
 import fr.minecraftforgefrance.common.IInstallRunner;
-import fr.minecraftforgefrance.common.Localization;
+import static fr.minecraftforgefrance.common.Localization.LANG;
 import fr.minecraftforgefrance.common.ProcessInstall;
 import fr.minecraftforgefrance.common.RemoteInfoReader;
 import fr.minecraftforgefrance.plusplus.PlusPlusGame;
@@ -35,7 +35,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 	
 	public InstallerFrame()
 	{
-		this.setTitle(RemoteInfoReader.instance().getModPackName() + " - " + Localization.LANG.getTranslation("misc.installer"));
+		this.setTitle(RemoteInfoReader.instance().getModPackName() + " - " + LANG.getTranslation("misc.installer"));
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 
@@ -59,7 +59,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 		logoLabel.setAlignmentY(CENTER_ALIGNMENT);
 		if(image.getWidth() > dim.width || image.getHeight() + 10 > dim.height)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.bigimage"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.bigimage"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			this.dispose();
 		}
 		else
@@ -68,7 +68,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 			panel.add(logoLabel);
 		}
 
-		JButton install = new JButton(Localization.LANG.getTranslation("scr.btn.install"));
+		JButton install = new JButton(LANG.getTranslation("scr.btn.install"));
 		install.addActionListener(new ActionListener()
 		{
 			@Override
@@ -80,7 +80,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 			}
 		});
 		
-		JButton credit = new JButton(Localization.LANG.getTranslation("scr.btn.credits"));
+		JButton credit = new JButton(LANG.getTranslation("scr.btn.credits"));
 		credit.addActionListener(new ActionListener()
 		{
 			@Override
@@ -91,7 +91,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 			}
 		});
 
-		JButton cancel = new JButton(Localization.LANG.getTranslation("misc.cancel"));
+		JButton cancel = new JButton(LANG.getTranslation("misc.cancel"));
 		cancel.addActionListener(new ActionListener()
 		{
 			@Override
@@ -171,6 +171,6 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 	@Override
 	public void onFinish()
 	{
-		JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("ok.installationfinished"), Localization.LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, LANG.getTranslation("ok.installationfinished"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
 	}
 }

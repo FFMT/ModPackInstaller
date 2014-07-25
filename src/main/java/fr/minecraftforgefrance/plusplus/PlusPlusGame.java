@@ -1,5 +1,7 @@
 package fr.minecraftforgefrance.plusplus;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -14,8 +16,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
-
-import fr.minecraftforgefrance.common.Localization;
 
 public class PlusPlusGame extends JFrame
 {
@@ -33,7 +33,7 @@ public class PlusPlusGame extends JFrame
 	{
 		isRunning = true;
 
-		this.setTitle(Localization.LANG.getTranslation("egg.name"));
+		this.setTitle(LANG.getTranslation("egg.name"));
 		this.setSize(400, 200);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -76,11 +76,11 @@ public class PlusPlusGame extends JFrame
 		});
 
 		field = new JTextField(20);
-		field.setText(Localization.LANG.getTranslation("egg.level") + " " + 1);
+		field.setText(LANG.getTranslation("egg.level") + " " + 1);
 		field.setEditable(false);
 
 		field2 = new JTextField(20);
-		field2.setText(Localization.LANG.getTranslation("egg.untilnextlevel") + " : " + 10);
+		field2.setText(LANG.getTranslation("egg.untilnextlevel") + " : " + 10);
 		field2.setEditable(false);
 
 		pan = new JPanel();
@@ -128,8 +128,8 @@ public class PlusPlusGame extends JFrame
 			totalClick++;
 		}
 
-		field.setText(Localization.LANG.getTranslation("egg.level") + " " + level + " | " + Localization.LANG.getTranslation("egg.score") + " : " + score);
-		field2.setText(Localization.LANG.getTranslation("egg.untilnextlevel") + " : " + (int)(10 * Math.pow(2, level - 1)) + " | Current : " + currentClick + " | Total clicks : " + totalClick);
+		field.setText(LANG.getTranslation("egg.level") + " " + level + " | " + LANG.getTranslation("egg.score") + " : " + score);
+		field2.setText(LANG.getTranslation("egg.untilnextlevel") + " : " + (int)(10 * Math.pow(2, level - 1)) + " | Current : " + currentClick + " | Total clicks : " + totalClick);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int x = rand.nextInt(dim.width - 400);
 		int y = rand.nextInt(dim.height - 200);

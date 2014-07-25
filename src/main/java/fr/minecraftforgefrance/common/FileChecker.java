@@ -1,5 +1,7 @@
 package fr.minecraftforgefrance.common;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,7 +35,7 @@ public class FileChecker
 	{
 		if(!mcDir.exists() || !mcDir.isDirectory())
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.mcdirmissing"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcdirmissing"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 

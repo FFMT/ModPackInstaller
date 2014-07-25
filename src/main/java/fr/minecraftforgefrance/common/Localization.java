@@ -27,13 +27,5 @@ public class Localization
 		{
 			ex.printStackTrace();
 		}
-		try
-		{
-			LANG.setSelectedLanguage(new Locale(System.getProperty("user.language")));
-		}
-		catch(NullPointerException ex)
-		{
-			return;
-		}
 	}
 }

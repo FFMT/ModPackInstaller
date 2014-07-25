@@ -1,5 +1,7 @@
 package fr.minecraftforgefrance.common;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -36,12 +38,12 @@ public class RemoteInfoReader
 		}
 		catch(URISyntaxException e)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotreadremote"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotreadremote"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, Localization.LANG.getTranslation("err.cannotreadremote"), Localization.LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotreadremote"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			throw Throwables.propagate(e);
 		}
 	}

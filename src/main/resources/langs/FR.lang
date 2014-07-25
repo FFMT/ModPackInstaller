@@ -71,7 +71,7 @@ scr.btn.install=Installer
 scr.btn.credits=Crédits
 
 # CRÉDITS
-scr.credits.html=<html><center>Créé par :</center><br>robin4002 - Fondateur du projet<br>kevin_68 - Interface<br>Utybo - Système de traduction<br><br><center>Autres contributions :</center><br>cpw - Créateur de l'installateur de Forge qui a servi de source d'inspiration<br>L'équipe de Forge</html>
+scr.credits.html=<html><center>Créé par :</center><br>robin4002 - Fondateur du projet<br>kevin_68 - Interface<br>utybo - Système de traduction<br><br><center>Autres contributions :</center><br>cpw - Créateur de l'installateur de Forge qui a servi de source d'inspiration<br>L'équipe de Forge</html>
 
 
 
