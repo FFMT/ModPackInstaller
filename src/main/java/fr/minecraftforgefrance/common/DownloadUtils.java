@@ -52,7 +52,7 @@ public class DownloadUtils
 			int fileLength = connection.getContentLength();
 			if(fileLength == -1)
 			{
-				System.err.println(LANG.getTranslation("err.invalidurl"));
+				System.err.println(String.format(LANG.getTranslation("err.invalidurl"), url2.toString()));
 				return false;
 			}
 			else
@@ -106,9 +106,15 @@ public class DownloadUtils
 		{
 			try
 			{
-				fos.flush();
-				fos.close();
-				reader.close();
+				if(fos != null)
+				{
+					fos.flush();
+					fos.close();
+				}
+				if(reader != null)
+				{
+					reader.close();
+				}
 			}
 			catch(IOException e)
 			{

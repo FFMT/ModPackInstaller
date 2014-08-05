@@ -18,7 +18,7 @@
 #   MESSAGES DE LA CONSOLE/À L'ÉCRAN   #
 ########################################
 # Erreurs
-err.invalidurl=URL invalide
+err.invalidurl=URL invalide : %s
 err.checksumvalidation=Échec de la vérification du checksums.sha1
 err.checksumnotfound=checksums.sha1 introuvable, la validation a échoué!
 err.missingsignature=Décompression échouée, signature manquante

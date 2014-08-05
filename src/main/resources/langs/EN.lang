@@ -18,7 +18,7 @@
 #   CONSOLE/SCREEN MESSAGES   #
 ###############################
 # Errors
-err.invalidurl=Invalid URL
+err.invalidurl=Invalid URL : %s
 err.checksumvalidation=Failed checksums.sha1 validation!
 err.checksumnotfound=checksums.sha1 was not found, validation failed
 err.missingsignature=Unpacking failed, missing signature
