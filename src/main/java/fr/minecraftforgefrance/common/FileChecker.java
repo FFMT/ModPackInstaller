@@ -20,17 +20,16 @@ public class FileChecker
 
 	public List<FileEntry> missingList;
 	public List<FileEntry> outdatedList;
-	
+
 	private File mcDir = EnumOS.getMinecraftDefaultDir();
 	private File modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
 
-	
 	public FileChecker()
 	{
 		this.getLocalFile();
 		this.compare();
 	}
-	
+
 	private void getLocalFile()
 	{
 		if(!mcDir.exists() || !mcDir.isDirectory())
@@ -58,7 +57,7 @@ public class FileChecker
 			}
 		}
 	}
-	
+
 	private void compare()
 	{
 		this.missingList = new ArrayList<FileEntry>(remoteList);
@@ -66,8 +65,25 @@ public class FileChecker
 
 		this.outdatedList = new ArrayList<FileEntry>(localList);
 		this.outdatedList.removeAll(remoteList);
+
+		System.out.println(RemoteInfoReader.instance().hasWhiteList());
+		if(RemoteInfoReader.instance().hasWhiteList())
+		{
+			for(String md5 : RemoteInfoReader.instance().getWhileList())
+			{
+				for(FileEntry file : this.outdatedList)
+				{
+					System.out.println("remote " + md5 + " local " + file.getMd5());
+					if(file.getMd5().equals(md5))
+					{
+						this.outdatedList.remove(file);
+						break;
+					}
+				}
+			}
+		}
 	}
-	
+
 	private void recursifAdd(List<FileEntry> list, File dir, String modpackPath)
 	{
 		for(File file : dir.listFiles())
@@ -82,7 +98,7 @@ public class FileChecker
 			}
 		}
 	}
-	
+
 	public String getMd5(final File file)
 	{
 		DigestInputStream stream = null;
