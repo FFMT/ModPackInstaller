@@ -21,7 +21,7 @@ public class CreditFrame extends JFrame
 
 	public CreditFrame(Dimension dim)
 	{
-		this.setTitle(LANG.getTranslation("scr.title.credits"));
+		this.setTitle(LANG.getTranslation("title.credits"));
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 		JPanel panel = new JPanel();

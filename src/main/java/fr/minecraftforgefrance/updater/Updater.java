@@ -89,9 +89,9 @@ public class Updater implements IInstallRunner
 		FileChecker checker = new FileChecker();
 		if(!shouldUpdate(jsonProfileData.getStringValue("mc"), jsonProfileData.getStringValue("forge"), checker))
 		{
-			System.out.println(LANG.getTranslation("ok.noupdatefound"));
+			System.out.println(LANG.getTranslation("no.update.found"));
 			long end = System.currentTimeMillis();
-			System.out.println(LANG.getTranslation("ok.updatecheckedin") + " : " + (end - start) + " ms");
+			System.out.println(String.format(LANG.getTranslation("update.checked.in"), (end - start)));
 			runMinecraft(args);
 		}
 		else
@@ -137,7 +137,7 @@ public class Updater implements IInstallRunner
 	{
 		if(this.mcUpdate || this.forgeUpdate)
 		{
-			JOptionPane.showMessageDialog(null, LANG.getTranslation("ok.updatefinished"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, LANG.getTranslation("update.finished.success"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
 		}
 		else
 		{

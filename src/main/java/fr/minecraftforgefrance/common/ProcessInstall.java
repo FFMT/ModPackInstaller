@@ -128,7 +128,7 @@ public class ProcessInstall
 			File f = new File(modPackDir, entry.getPath());
 			if(f.delete())
 			{
-				System.out.println(LANG.getTranslation("ok.fileremovedwithmd5").replace("$f", f.getPath()).replace("$m", entry.getMd5()));
+				System.out.println(String.format(LANG.getTranslation("file.removed.md5.success"), f.getPath(), entry.getMd5()));
 			}
 			else
 			{
@@ -165,7 +165,7 @@ public class ProcessInstall
 				f.getParentFile().mkdirs();
 			}
 			currentDownload.setText(entry.getPath());
-			System.out.println(LANG.getTranslation("proc.downloadingfile").replace("$f", entry.getUrl().toString()).replace("$t", f.getPath()).replace("$m", entry.getMd5()));
+			System.out.println(String.format(LANG.getTranslation("proc.downloadingfile"), entry.getUrl().toString(), f.getPath(), entry.getMd5()));
 			if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
 			{
 				frame.dispose();
@@ -177,7 +177,7 @@ public class ProcessInstall
 
 	public void downloadLib(Thread thread)
 	{
-		this.frame.setTitle(LANG.getTranslation("proc.downloadinglibs"));
+		this.frame.setTitle(LANG.getTranslation("title.libs"));
 		this.fullProgressBar.setValue(0);
 
 		File librariesDir = new File(mcDir, "libraries");
@@ -202,7 +202,7 @@ public class ProcessInstall
 					}));
 				}
 
-				System.out.println(LANG.getTranslation("proc.consideringlib") + " " + libName);
+				System.out.println(String.format(LANG.getTranslation("proc.consideringlib"), libName));
 				String[] nameparts = Iterables.toArray(Splitter.on(':').split(libName), String.class);
 				nameparts[0] = nameparts[0].replace('.', '/');
 				String jarName = nameparts[1] + '-' + nameparts[2] + ".jar";
@@ -228,9 +228,9 @@ public class ProcessInstall
 					pack = new File(libPath.getParentFile(), libPath.getName() + DownloadUtils.PACK_NAME);
 					libURL += DownloadUtils.PACK_NAME;
 				}
-				if(library.isStringValue("download"))
+				if(library.isStringValue("directURL"))
 				{
-					libURL = library.getStringValue("download");
+					libURL = library.getStringValue("directURL");
 				}
 				try
 				{
@@ -251,7 +251,7 @@ public class ProcessInstall
 
 		for(LibEntry entry : libEntryList)
 		{
-			currentDownload.setText(LANG.getTranslation("proc.downloadinglib") + entry.getName());
+			currentDownload.setText(String.format(LANG.getTranslation("proc.downloadinglib"), entry.getName()));
 			try
 			{
 				if(entry.isXZ())
@@ -268,7 +268,7 @@ public class ProcessInstall
 						{
 							currentDownload.setText(LANG.getTranslation("proc.unpackingfile") + " : " + entry.getPackDest().toString());
 							DownloadUtils.unpackLibrary(entry.getDest(), Files.toByteArray(entry.getPackDest()));
-							currentDownload.setText(LANG.getTranslation("ok.fileunpacked") + " : " + entry.getPackDest().toString());
+							currentDownload.setText(String.format(LANG.getTranslation("file.unpacked.success"), entry.getPackDest().toString()));
 							entry.getPackDest().delete();
 						}
 						catch(Exception e)

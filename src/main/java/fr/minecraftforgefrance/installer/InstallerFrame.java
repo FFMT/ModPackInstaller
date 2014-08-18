@@ -35,7 +35,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 	
 	public InstallerFrame()
 	{
-		this.setTitle(String.format(LANG.getTranslation("misc.installer"), RemoteInfoReader.instance().getModPackName()));
+		this.setTitle(String.format(LANG.getTranslation("title.installer"), RemoteInfoReader.instance().getModPackName()));
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 
@@ -171,7 +171,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 	@Override
 	public void onFinish()
 	{
-		JOptionPane.showMessageDialog(null, LANG.getTranslation("ok.installationfinished"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, LANG.getTranslation("installation.success"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override

@@ -178,7 +178,7 @@ public class DownloadUtils
 			}
 			else
 			{
-				System.out.println(LANG.getTranslation("ok.checksumvalidation"));
+				System.out.println(LANG.getTranslation("file.checksumvalidation.success"));
 				for(String hash : hashes)
 				{
 					if(hash.trim().equals("") || !hash.contains(" "))
@@ -203,7 +203,7 @@ public class DownloadUtils
 
 			if(!failed)
 			{
-				System.out.println(LANG.getTranslation("ok.jarvalidated"));
+				System.out.println(LANG.getTranslation("jar.validated.success"));
 			}
 
 			return !failed;

@@ -38,23 +38,22 @@ err.invalidjson=Json local invalide, veuillez le vérifiez avec http://jsonlint.
 err.erroredprofile=Profil érroné, veuiller utiliser le launcher officiel pour corriger cela!
 
 # Tâches effectuées
-ok.fileunpacked=Fichier correctement décompressé
-ok.fileremovedwithmd5=$f a été supprimé. Son MD5 était $m
-ok.checksumvalidation=checksums.sha1 correctement validé
-ok.jarvalidated=Contenu du .jar vérirfié avec succès
-ok.installationfinished=Installation terminée!
-ok.noupdatefound=Aucune mise à jour trouvée, lancement de Minecraft!
-ok.updatecheckedin=Présence de mise à jour vérifiée en
-ok.updatefinished=Mise à jour terminée avec succès, veuillez redémarrer Minecraft!
+file.unpacked.success=%s à été décompressé
+file.removed.md5.success=%1$s a été supprimé. Son MD5 était %2$s
+file.checksumvalidation.success=checksums.sha1 correctement validé
+jar.validated.success=Contenu du .jar vérifié avec succès
+installation.success=Installation terminée !
+no.update.found=Aucune mise à jour trouvée, lancement de Minecraft !
+update.checked.in=Présence de mise à jour vérifiée en %d ms
+update.finished.success=Mise à jour terminée avec succès, veuillez relancer Minecraft !
 
 # Processus
 proc.unpackingfile=Décompression du fichier
-proc.downloadinglib=Téléchargement de la librairie
-proc.consideringlib=Prise en compte de la librairie
-proc.downloadinglibs=Téléchargement et décompression des librairies
-proc.downloadingfile=Téléchargement du fichier $f vers $t (MD : $m)
+proc.downloadinglib=Téléchargement de la bibliothèque %s
+proc.consideringlib=Examination de la bibliothèque %s
+proc.downloadingfile=Téléchargement du fichier %1$s vers %2$s (MD : %3$s)
 proc.downloadingmods=Téléchargement des mods et des fichiers de configuration...
-proc.checkingchecksum=Vérification des signatures intenrnes " $p "
+proc.checkingchecksum=Vérification des signatures internes "$p"
 proc.startingupdater=Démarrage de l'utilitaire de mise à jour..
 
 
@@ -63,7 +62,9 @@ proc.startingupdater=Démarrage de l'utilitaire de mise à jour..
 #   AFFICHAGE DU GUI   #
 ########################
 # Nom des fenêtres
-scr.title.credits=Crédits
+title.credits=Crédits
+title.libs=Téléchargement et décompression des bibliothèques...
+title.installer=Installeur de %s
 
 # Boutons
 scr.btn.mffwebsite=Site web de Minecraft Forge France
@@ -85,7 +86,6 @@ misc.failed=Échoué
 misc.error=Erreur
 misc.cancel=Annuler
 misc.success=Succès
-misc.installer=Installeur de %s
 
 
 

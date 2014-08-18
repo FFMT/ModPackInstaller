@@ -38,22 +38,21 @@ err.invalidjson=The local json is not valid, please check it with this website :
 err.erroredprofile=Errored profile, please re-install it!
 
 # Tasks done
-ok.fileunpacked=Successfully unpacked packed file
-ok.fileremovedwithmd5=$f was removed. Its md5 was : $m
-ok.checksumvalidation=Successfully validated checksums.sha1
-ok.jarvalidated=Jar contents validated successfully
-ok.installationfinished=Installation finished!
-ok.noupdatefound=No update found, launching minecraft!
-ok.updatecheckedin=Update checked in
-ok.updatefinished=Update finished successfully, please restart the game!
+file.unpacked.success=Successfully unpacked %s
+file.removed.md5.success=%1$s was removed. Its md5 was : %2$s
+file.checksumvalidation.success=Successfully validated checksums.sha1
+jar.validated.success=Jar contents validated successfully
+installation.success=Installation finished !
+no.update.found=No update found, launching Minecraft !
+update.checked.in=Update checked in %d ms
+update.finished.success=Update finished successfully, please restart the game !
 # Processes running
 proc.unpackingfile=Unpacking packed file
-proc.downloadinglib=Downloading library
-proc.consideringlib=Considering library
-proc.downloadinglibs=Downloading and extracting libraries...
-proc.downloadingfile=Downloading file $f to $t (its md5 is $m)
+proc.downloadinglib=Downloading library %s
+proc.consideringlib=Considering library %s
+proc.downloadingfile=Downloading file %1$s to %2$s (its md5 is %3$s)
 proc.downloadingmods=Downloading mods and config files...
-proc.checkingchecksum=Checking \" $p \" internal checksums
+proc.checkingchecksum=Checking "$p" internal checksums
 proc.startingupdater=Starting the Updater...
 
 
@@ -62,7 +61,9 @@ proc.startingupdater=Starting the Updater...
 #   SCREEN STUFF   #
 ####################
 # Titles
-scr.title.credits=Credits
+title.credits=Credits
+title.libs=Downloading and extracting libraries...
+title.installer=%s Installer
 
 # Buttons
 scr.btn.mffwebsite=Minecraft Forge France website
@@ -84,7 +85,6 @@ misc.failed=Failed
 misc.error=Error
 misc.cancel=Cancel
 misc.success=Success
-misc.installer=%s Installer
 
 
 

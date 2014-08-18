@@ -73,7 +73,6 @@ public class FileChecker
 			{
 				for(FileEntry file : this.outdatedList)
 				{
-					System.out.println("remote " + md5 + " local " + file.getMd5());
 					if(file.getMd5().equals(md5))
 					{
 						this.outdatedList.remove(file);
