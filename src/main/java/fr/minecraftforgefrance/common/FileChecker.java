@@ -66,7 +66,6 @@ public class FileChecker
 		this.outdatedList = new ArrayList<FileEntry>(localList);
 		this.outdatedList.removeAll(remoteList);
 
-		System.out.println(RemoteInfoReader.instance().hasWhiteList());
 		if(RemoteInfoReader.instance().hasWhiteList())
 		{
 			for(String md5 : RemoteInfoReader.instance().getWhileList())
