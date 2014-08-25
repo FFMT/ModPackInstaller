@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import argo.jdom.JsonRootNode;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
 
@@ -73,9 +74,9 @@ public class RemoteInfoReader
 		return data.getStringValue("install", "forge");
 	}
 	
-	public String[] getSyncDir()
+	public ArrayList<String> getSyncDir()
 	{
-		return Iterables.toArray(Splitter.on(',').omitEmptyStrings().split(data.getStringValue("install", "syncDir")), String.class);
+		return Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split(data.getStringValue("install", "syncDir")));
 	}
 	
 	public String getSyncUrl()

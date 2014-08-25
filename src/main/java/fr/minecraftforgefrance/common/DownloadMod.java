@@ -1,8 +1,6 @@
 package fr.minecraftforgefrance.common;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,9 +17,8 @@ public class DownloadMod
 	
 	public int time = 0;
 	
-    public List<FileEntry> getRemoteList()
+    public void getRemoteList(List<FileEntry> list, List<String> dir)
     {
-        List<FileEntry> result = Collections.synchronizedList(new ArrayList<FileEntry>());
         try
         {
             URL resourceUrl = new URL(RemoteInfoReader.instance().getSyncUrl());
@@ -45,7 +42,11 @@ public class DownloadMod
                     if(size > 0L)
                     {
                     	String link = RemoteInfoReader.instance().getSyncUrl() + key;
-                        result.add(new FileEntry(new URL(link), md5, key, size));
+                    	list.add(new FileEntry(new URL(link), md5, key, size));
+                    }
+                    else if(key.split("/").length == 1)
+                    {
+                    	dir.add(key.replace("/", ""));
                     }
                 }
             }
@@ -57,7 +58,6 @@ public class DownloadMod
         {
         	ex.printStackTrace();
         }
-        return result;
     }
     
     public static DownloadMod instance()

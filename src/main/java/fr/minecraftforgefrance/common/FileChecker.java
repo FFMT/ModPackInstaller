@@ -9,13 +9,16 @@ import java.math.BigInteger;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 public class FileChecker
 {
-	public List<FileEntry> remoteList = DownloadMod.instance().getRemoteList();
+	public List<FileEntry> remoteList = Collections.synchronizedList(new ArrayList<FileEntry>());
+	public List<FileEntry> syncList = new ArrayList<FileEntry>();
+	public List<String> checkDir = new ArrayList<String>();
 	public List<FileEntry> localList = new ArrayList<FileEntry>();
 
 	public List<FileEntry> missingList;
@@ -26,6 +29,7 @@ public class FileChecker
 
 	public FileChecker()
 	{
+		DownloadMod.instance().getRemoteList(remoteList, checkDir);
 		this.getLocalFile();
 		this.compare();
 	}
@@ -48,12 +52,19 @@ public class FileChecker
 			modPackDir.delete();
 			modPackDir.mkdirs();
 		}
-		for(String dirName : RemoteInfoReader.instance().getSyncDir())
+		for(String dirName : this.checkDir)
 		{
 			File dir = new File(modPackDir, dirName);
 			if(dir.exists() && dir.isDirectory())
 			{
-				this.recursifAdd(localList, dir, modPackDir.getAbsolutePath());
+				if(RemoteInfoReader.instance().getSyncDir().contains(dirName))
+				{
+					this.recursifAdd(localList, syncList, dir, modPackDir.getAbsolutePath(), true);
+				}
+				else
+				{
+					this.recursifAdd(localList, syncList, dir, modPackDir.getAbsolutePath(), false);
+				}
 			}
 		}
 	}
@@ -63,7 +74,7 @@ public class FileChecker
 		this.missingList = new ArrayList<FileEntry>(remoteList);
 		this.missingList.removeAll(localList);
 
-		this.outdatedList = new ArrayList<FileEntry>(localList);
+		this.outdatedList = new ArrayList<FileEntry>(syncList);
 		this.outdatedList.removeAll(remoteList);
 
 		if(RemoteInfoReader.instance().hasWhiteList())
@@ -82,16 +93,20 @@ public class FileChecker
 		}
 	}
 
-	private void recursifAdd(List<FileEntry> list, File dir, String modpackPath)
+	private void recursifAdd(List<FileEntry> list, List<FileEntry> syncList, File dir, String modpackPath, boolean syncDir)
 	{
 		for(File file : dir.listFiles())
 		{
 			if(file.isDirectory())
 			{
-				recursifAdd(list, file, modpackPath);
+				recursifAdd(list, syncList, file, modpackPath, syncDir);
 			}
 			else
 			{
+				if(syncDir)
+				{
+					syncList.add(new FileEntry(getMd5(file), file.getAbsolutePath().replace(modpackPath + File.separator, ""), file.length()));
+				}
 				list.add(new FileEntry(getMd5(file), file.getAbsolutePath().replace(modpackPath + File.separator, ""), file.length()));
 			}
 		}
