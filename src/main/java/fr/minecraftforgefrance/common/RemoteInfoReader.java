@@ -1,18 +1,13 @@
 package fr.minecraftforgefrance.common;
 
-import static fr.minecraftforgefrance.common.Localization.LANG;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import argo.jdom.JdomParser;
 import argo.jdom.JsonNode;
@@ -20,7 +15,6 @@ import argo.jdom.JsonRootNode;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.common.io.InputSupplier;
@@ -28,29 +22,29 @@ import com.google.common.io.InputSupplier;
 public class RemoteInfoReader
 {
 	public static RemoteInfoReader instance;
-	public final JsonRootNode data;
+	public JsonRootNode data;
 	public final String remoteUrl;
 
 	public RemoteInfoReader(String url)
 	{
 		this.remoteUrl = url;
+	}
+	
+	public boolean init()
+	{
 		JdomParser parser = new JdomParser();
 		try
 		{
-			URI uri = new URI(url);
+			URI uri = new URI(this.remoteUrl);
 			URLConnection connection = uri.toURL().openConnection();
 			InputStream in = connection.getInputStream();
 			data = parser.parse(new InputStreamReader(in, Charsets.UTF_8));
-		}
-		catch(URISyntaxException e)
-		{
-			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotreadremote"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-			throw Throwables.propagate(e);
+			return true;
 		}
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotreadremote"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-			throw Throwables.propagate(e);
+			e.printStackTrace();
+			return false;
 		}
 	}
 

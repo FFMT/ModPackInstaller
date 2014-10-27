@@ -58,9 +58,6 @@ public class Updater implements IInstallRunner
 		}
 		arguments = args;
 
-		System.out.println(modpackName);
-		System.out.println(modPackDir.getAbsolutePath());
-
 		File modpackInfo = new File(modPackDir, modpackName + ".json");
 		if(!modpackInfo.exists())
 		{
@@ -86,6 +83,10 @@ public class Updater implements IInstallRunner
 			throw Throwables.propagate(e);
 		}
 		RemoteInfoReader.instance = new RemoteInfoReader(jsonProfileData.getStringValue("remote"));
+		if(!RemoteInfoReader.instance().init())
+		{
+			runMinecraft(args);
+		}
 		FileChecker checker = new FileChecker();
 		if(!shouldUpdate(jsonProfileData.getStringValue("mc"), jsonProfileData.getStringValue("forge"), checker))
 		{
