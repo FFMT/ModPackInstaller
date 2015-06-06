@@ -50,15 +50,7 @@ public class DownloadUtils
 			URLConnection connection = url2.openConnection();
 
 			int fileLength = connection.getContentLength();
-			if(fileLength == -1)
-			{
-				System.err.println(String.format(LANG.getTranslation("err.invalidurl"), url2.toString()));
-				return false;
-			}
-			else
-			{
-				bar.setMaximum(fileLength);
-			}
+			bar.setMaximum(fileLength);
 
 			InputStream in = connection.getInputStream();
 			reader = new BufferedReader(new InputStreamReader(in));
@@ -100,6 +92,7 @@ public class DownloadUtils
 		catch(Exception e)
 		{
 			e.printStackTrace();
+			System.err.println(String.format(LANG.getTranslation("err.invalidurl"), url.toString()));
 			return false;
 		}
 		finally
