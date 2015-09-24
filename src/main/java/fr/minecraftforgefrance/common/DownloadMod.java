@@ -1,7 +1,6 @@
 package fr.minecraftforgefrance.common;
 
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -43,8 +42,8 @@ public class DownloadMod
                     if(size > 0L)
                     {
                         String name = key.substring(key.lastIndexOf("/") + 1);
-                        String path = key.substring(0, key.lastIndexOf("/") +1);
-                        String link = RemoteInfoReader.instance().getSyncUrl() + path + URLEncoder.encode(name, "UTF-8");
+                        String path = key.substring(0, key.lastIndexOf("/") + 1);
+                        String link = RemoteInfoReader.instance().getSyncUrl() + path + escapeURIPathParam(name);
                         list.add(new FileEntry(new URL(link), md5, key, size));
                     }
                     else if(key.split("/").length == 1)
@@ -66,5 +65,36 @@ public class DownloadMod
     public static DownloadMod instance()
     {
         return instance;
+    }
+
+    public static String escapeURIPathParam(String input)
+    {
+        StringBuilder resultStr = new StringBuilder();
+        for(char ch : input.toCharArray())
+        {
+            if(isUnsafe(ch))
+            {
+                resultStr.append('%');
+                resultStr.append(toHex(ch / 16));
+                resultStr.append(toHex(ch % 16));
+            }
+            else
+            {
+                resultStr.append(ch);
+            }
+        }
+        return resultStr.toString();
+    }
+
+    private static char toHex(int ch)
+    {
+        return (char)(ch < 10 ? '0' + ch : 'A' + ch - 10);
+    }
+
+    private static boolean isUnsafe(char ch)
+    {
+        if(ch > 128 || ch < 0)
+            return true;
+        return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
     }
 }
