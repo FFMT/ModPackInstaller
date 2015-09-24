@@ -45,9 +45,7 @@ public class DownloadUtils
 
 		try
 		{
-			URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-			URL url2 = uri.toURL();
-			URLConnection connection = url2.openConnection();
+			URLConnection connection = url.openConnection();
 
 			int fileLength = connection.getContentLength();
 			bar.setMaximum(fileLength);
