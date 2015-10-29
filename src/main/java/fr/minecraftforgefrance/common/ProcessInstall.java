@@ -311,7 +311,6 @@ public class ProcessInstall
 
 	private void createOrUpdateProfile()
 	{
-		String mcVersion = RemoteInfoReader.instance().getMinecraftVersion();
 		String modpackName = RemoteInfoReader.instance().getModPackName();
 		File versionRootDir = new File(mcDir, "versions");
 		File modpackVersionDir = new File(versionRootDir, modpackName);
@@ -319,32 +318,7 @@ public class ProcessInstall
 		{
 			modpackVersionDir.mkdirs();
 		}
-		File modpackJar = new File(modpackVersionDir, modpackName + ".jar");
 		File modpackJson = new File(modpackVersionDir, modpackName + ".json");
-		File minecraftJar = new File(new File(versionRootDir, mcVersion), mcVersion + ".jar");
-
-		if(minecraftJar.exists())
-		{
-			try
-			{
-				Files.copy(minecraftJar, modpackJar);
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else
-		{
-			try
-			{
-				DownloadUtils.downloadFile(new URL("https://s3.amazonaws.com/Minecraft.Download/versions/" + mcVersion + "/" + mcVersion + ".jar"), modpackJar, this.fileProgressBar, this.fullProgressBar, this.downloadSpeedLabel);
-			}
-			catch(MalformedURLException e)
-			{
-				e.printStackTrace();
-			}
-		}
 
 		JsonRootNode versionJson = JsonNodeFactories.object(RemoteInfoReader.instance().getProfileInfo().getFields());
 		try

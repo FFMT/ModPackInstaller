@@ -1,15 +1,14 @@
 package fr.minecraftforgefrance.common;
 
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import com.google.common.base.Charsets;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import argo.jdom.JdomParser;
+import argo.jdom.JsonNode;
+import argo.jdom.JsonRootNode;
 
 public class DownloadMod
 {
@@ -22,34 +21,28 @@ public class DownloadMod
         try
         {
             URL resourceUrl = new URL(RemoteInfoReader.instance().getSyncUrl());
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(resourceUrl.openStream());
-            NodeList nodeLst = doc.getElementsByTagName("Contents");
+            JdomParser parser = new JdomParser();
+            JsonRootNode data = parser.parse(new InputStreamReader(resourceUrl.openStream(), Charsets.UTF_8));
 
             long start = System.nanoTime();
-            for(int i = 0; i < nodeLst.getLength(); i++)
+
+            for(int i = 0; i < data.getElements().size(); i++)
             {
-                Node node = nodeLst.item(i);
+                JsonNode node = data.getElements().get(i);
+                String key = node.getStringValue("name");
+                long size = Long.parseLong(node.getStringValue("size"));
+                String md5 = node.getStringValue("md5");
 
-                if(node.getNodeType() == 1)
+                if(size > 0L)
                 {
-                    Element element = (Element)node;
-                    String key = element.getElementsByTagName("Key").item(0).getChildNodes().item(0).getNodeValue();
-                    long size = Long.parseLong(element.getElementsByTagName("Size").item(0).getChildNodes().item(0).getNodeValue());
-                    String md5 = element.getElementsByTagName("MD5").item(0).getChildNodes().item(0).getNodeValue();
-
-                    if(size > 0L)
-                    {
-                        String name = key.substring(key.lastIndexOf("/") + 1);
-                        String path = key.substring(0, key.lastIndexOf("/") + 1);
-                        String link = RemoteInfoReader.instance().getSyncUrl() + path + escapeURIPathParam(name);
-                        list.add(new FileEntry(new URL(link), md5, key, size));
-                    }
-                    else if(key.split("/").length == 1)
-                    {
-                        dir.add(key.replace("/", ""));
-                    }
+                    String name = key.substring(key.lastIndexOf("/") + 1);
+                    String path = key.substring(0, key.lastIndexOf("/") + 1);
+                    String link = RemoteInfoReader.instance().getSyncUrl() + path + escapeURIPathParam(name);
+                    list.add(new FileEntry(new URL(link), md5, key, size));
+                }
+                else if(key.split("/").length == 1)
+                {
+                    dir.add(key.replace("/", ""));
                 }
             }
             long end = System.nanoTime();
