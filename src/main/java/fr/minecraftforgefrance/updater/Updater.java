@@ -28,7 +28,7 @@ import fr.minecraftforgefrance.common.RemoteInfoReader;
 public class Updater implements IInstallRunner
 {
 	final private String[] arguments;
-	private boolean forgeUpdate, mcUpdate;
+	private boolean forgeUpdate;
 	public static void main(String[] args)
 	{
 		Localization.init();
@@ -88,7 +88,7 @@ public class Updater implements IInstallRunner
 			runMinecraft(args);
 		}
 		FileChecker checker = new FileChecker();
-		if(!shouldUpdate(jsonProfileData.getStringValue("mc"), jsonProfileData.getStringValue("forge"), checker))
+		if(!shouldUpdate(jsonProfileData.getStringValue("forge"), checker))
 		{
 			System.out.println(LANG.getTranslation("no.update.found"));
 			long end = System.currentTimeMillis();
@@ -109,16 +109,11 @@ public class Updater implements IInstallRunner
 		}
 	}
 
-	public boolean shouldUpdate(String mcVersion, String forgeVersion, FileChecker checker)
+	public boolean shouldUpdate(String forgeVersion, FileChecker checker)
 	{
 		if(checker.remoteList.isEmpty())
 		{
 			return false;
-		}
-		if(!RemoteInfoReader.instance().getMinecraftVersion().equals(mcVersion))
-		{
-			this.mcUpdate = true;
-			return true;
 		}
 		if(!RemoteInfoReader.instance().getForgeVersion().equals(forgeVersion))
 		{
@@ -136,7 +131,7 @@ public class Updater implements IInstallRunner
 	@Override
 	public void onFinish()
 	{
-		if(this.mcUpdate || this.forgeUpdate)
+		if(this.forgeUpdate)
 		{
 			JOptionPane.showMessageDialog(null, LANG.getTranslation("update.finished.success"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
 		}

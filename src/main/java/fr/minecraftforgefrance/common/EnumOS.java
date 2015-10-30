@@ -5,7 +5,7 @@ import java.util.Locale;
 
 public enum EnumOS
 {
-	WINDOWS, MACOS, SOLARIS, UNIX, UNKNOWN;
+	WINDOWS, MACOS, UNIX, UNKNOWN;
 
 	public static EnumOS getPlatform()
 	{
@@ -31,8 +31,6 @@ public enum EnumOS
 		switch(getPlatform())
 		{
 		case UNIX:
-			return new File(userHome, ".minecraft");
-		case SOLARIS:
 			return new File(userHome, ".minecraft");
 		case WINDOWS:
 			String applicationData = System.getenv("APPDATA");

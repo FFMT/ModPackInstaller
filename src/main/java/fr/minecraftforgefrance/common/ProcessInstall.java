@@ -405,7 +405,7 @@ public class ProcessInstall
 			}
 		}
 
-		JsonRootNode json = JsonNodeFactories.object(JsonNodeFactories.field("mc", JsonNodeFactories.string(RemoteInfoReader.instance().getMinecraftVersion())), JsonNodeFactories.field("forge", JsonNodeFactories.string(RemoteInfoReader.instance().getForgeVersion())), JsonNodeFactories.field("remote", JsonNodeFactories.string(RemoteInfoReader.instance().remoteUrl)));
+		JsonRootNode json = JsonNodeFactories.object(JsonNodeFactories.field("forge", JsonNodeFactories.string(RemoteInfoReader.instance().getForgeVersion())), JsonNodeFactories.field("remote", JsonNodeFactories.string(RemoteInfoReader.instance().remoteUrl)));
 		try
 		{
 			BufferedWriter writer = Files.newWriter(info, Charsets.UTF_8);
