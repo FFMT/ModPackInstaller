@@ -15,6 +15,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import fr.minecraftforgefrance.common.RemoteInfoReader;
+
 public class CreditFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
@@ -53,7 +55,13 @@ public class CreditFrame extends JFrame
 		sponsorPanel.add(sponsorButton);
 
 		JLabel text = new JLabel();
-		text.setText(LANG.getTranslation("scr.credits.html"));
+		String creditText = "<html><br>";
+		if(RemoteInfoReader.instance().hasCredits())
+		{
+		    creditText += RemoteInfoReader.instance().getCredits() + "<br><br>";
+		}
+		creditText += String.format(LANG.getTranslation("scr.credits.html"), "robin4002", "kevin_68", "utybo", "cpw") + "<br></html>";
+		text.setText(creditText);
 		text.setAlignmentX(CENTER_ALIGNMENT);
 		text.setAlignmentY(CENTER_ALIGNMENT);
 

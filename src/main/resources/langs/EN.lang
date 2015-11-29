@@ -66,13 +66,13 @@ title.libs=Downloading and extracting libraries...
 title.installer=%s Installer
 
 # Buttons
-scr.btn.mffwebsite=Minecraft Forge France website
+scr.btn.mffwebsite=MFF website
 scr.btn.install=Install
 scr.btn.credits=Credits
 scr.btn.webSite=Web site
 
 # CREDITS
-scr.credits.html=<html><center>Created by :</center><br>robin4002 - project founder<br>kevin_68 - GUI<br>utybo - Translation system<br><br><center>Other contributions :</center><br>cpw - Creator of the Forge installer that served as an inspiration<br>The Forge Team</html>
+scr.credits.html=Installer created by %s with the help of %s (GUI) and %s (translation system)<br>Thank to %s, creator of the Forge installer that served as an inspiration
 
 
 

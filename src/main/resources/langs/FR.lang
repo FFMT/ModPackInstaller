@@ -67,13 +67,13 @@ title.libs=Téléchargement et décompression des bibliothèques...
 title.installer=Installeur de %s
 
 # Boutons
-scr.btn.mffwebsite=Site web de Minecraft Forge France
+scr.btn.mffwebsite=Site web de MFF
 scr.btn.install=Installer
 scr.btn.credits=Crédits
 scr.btn.webSite=Site web
 
 # CRÉDITS
-scr.credits.html=<html><center>Créé par :</center><br>robin4002 - Fondateur du projet<br>kevin_68 - Interface<br>utybo - Système de traduction<br><br><center>Autres contributions :</center><br>cpw - Créateur de l'installateur de Forge qui a servi de source d'inspiration<br>L'équipe de Forge</html>
+scr.credits.html=Installateur créé par %s avec la contribution de %s (interface) et %s (système de traduction)<br>Remerciement à %s, créateur de l'installateur de Forge qui a servi de source d'inspiration
 
 
 

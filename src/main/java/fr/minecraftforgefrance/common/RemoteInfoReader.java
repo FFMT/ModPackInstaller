@@ -135,6 +135,16 @@ public class RemoteInfoReader
     {
         return data.getStringValue("install", "webSite");
     }
+    
+    public boolean hasCredits()
+    {
+        return data.isStringValue("install", "credits");
+    }
+
+    public String getCredits()
+    {
+        return data.getStringValue("install", "credits");
+    }
 
     static class URLISSupplier implements InputSupplier<InputStream>
     {
