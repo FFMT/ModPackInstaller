@@ -41,7 +41,7 @@ public class CreditFrame extends JFrame
 				}
 				catch(Exception ex)
 				{
-					JOptionPane.showMessageDialog(CreditFrame.this, LANG.getTranslation("err.cannotopenurl") + " : http://www.minecraftforgefrance.fr", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(CreditFrame.this, String.format(LANG.getTranslation("err.cannotopenurl"), "http://www.minecraftforgefrance.fr"), "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});

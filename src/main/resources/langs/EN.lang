@@ -31,7 +31,7 @@ err.cannotdownload=Could not download
 err.cannotwriteversion=There was a problem while writing the launcher version. Is it write protected?
 err.cannotwriteprofile=There was a problem while writing the launcher profile. Is it write protected?
 err.cannotreadremote=Could not read remote info, please check your Internet connection
-err.cannotopenurl=An error occurred while opening URL
+err.cannotopenurl=An error occurred while opening URL : %s
 err.bigimage=The image is too big!
 err.cannotfindlocalinfo=Local information not found, file /installer/local_info.json is missing in the jar
 err.invalidjson=The local json is not valid, please check it with this website : http://jsonlint.com/
@@ -69,6 +69,7 @@ title.installer=%s Installer
 scr.btn.mffwebsite=Minecraft Forge France website
 scr.btn.install=Install
 scr.btn.credits=Credits
+scr.btn.webSite=Web site
 
 # CREDITS
 scr.credits.html=<html><center>Created by :</center><br>robin4002 - project founder<br>kevin_68 - GUI<br>utybo - Translation system<br><br><center>Other contributions :</center><br>cpw - Creator of the Forge installer that served as an inspiration<br>The Forge Team</html>
