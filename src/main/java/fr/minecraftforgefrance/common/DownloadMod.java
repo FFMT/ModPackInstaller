@@ -35,9 +35,7 @@ public class DownloadMod
 
                 if(size > 0L)
                 {
-                    String name = key.substring(key.lastIndexOf("/") + 1);
-                    String path = key.substring(0, key.lastIndexOf("/") + 1);
-                    String link = RemoteInfoReader.instance().getSyncUrl() + path + escapeURIPathParam(name);
+                    String link = RemoteInfoReader.instance().getSyncUrl() + escapeURIPathParam(key);
                     list.add(new FileEntry(new URL(link), md5, key, size));
                 }
                 else if(key.split("/").length == 1)
@@ -88,6 +86,6 @@ public class DownloadMod
     {
         if(ch > 128 || ch < 0)
             return true;
-        return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
+        return " %$&+,:;=?@<>#%".indexOf(ch) >= 0;
     }
 }
