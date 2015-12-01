@@ -64,12 +64,14 @@ proc.startingupdater=Starting the Updater...
 title.credits=Credits
 title.libs=Downloading and extracting libraries...
 title.installer=%s Installer
+title.options=Options
 
 # Buttons
 scr.btn.mffwebsite=MFF website
 scr.btn.install=Install
 scr.btn.credits=Credits
 scr.btn.webSite=Web site
+scr.btn.options=Options
 
 # CREDITS
 scr.credits.html=Installer created by %s with the help of %s (GUI) and %s (translation system)<br>Thank to %s, creator of the Forge installer that served as an inspiration

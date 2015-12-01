@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -80,7 +81,8 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             {
                 dispose();
                 FileChecker checker = new FileChecker();
-                new ProcessInstall(checker, InstallerFrame.this, false);
+                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, false, OptionFrame.targetDir);
+                install.run();
             }
         });
         buttonPanel.add(install);
@@ -117,6 +119,18 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             }
         });
         buttonPanel.add(credit);
+        
+        JButton option = new JButton(LANG.getTranslation("scr.btn.options"));
+        option.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                OptionFrame credit = new OptionFrame(dim);
+                credit.setVisible(true);
+            }
+        });
+        buttonPanel.add(option);
 
         JButton cancel = new JButton(LANG.getTranslation("misc.cancel"));
         cancel.addActionListener(new ActionListener()

@@ -65,12 +65,14 @@ proc.startingupdater=Démarrage de l'utilitaire de mise à jour..
 title.credits=Crédits
 title.libs=Téléchargement et décompression des bibliothèques...
 title.installer=Installeur de %s
+title.options=Options
 
 # Boutons
 scr.btn.mffwebsite=Site web de MFF
 scr.btn.install=Installer
 scr.btn.credits=Crédits
 scr.btn.webSite=Site web
+scr.btn.options=Options
 
 # CRÉDITS
 scr.credits.html=Installateur créé par %s avec la contribution de %s (interface) et %s (système de traduction)<br>Remerciement à %s, créateur de l'installateur de Forge qui a servi de source d'inspiration
