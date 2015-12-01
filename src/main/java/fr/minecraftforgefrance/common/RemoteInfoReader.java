@@ -55,6 +55,11 @@ public class RemoteInfoReader
 
     public String getModPackName()
     {
+        return data.getStringValue("profile", "id");
+    }
+    
+    public String getModPackDisplayName()
+    {
         return data.getStringValue("install", "name");
     }
 
@@ -144,6 +149,28 @@ public class RemoteInfoReader
     public String getCredits()
     {
         return data.getStringValue("install", "credits");
+    }
+    
+    public boolean hasChangeLog()
+    {
+        return data.isStringValue("install", "changeLog");
+    }
+
+    public JsonRootNode getChangeLog()
+    {
+        JdomParser parser = new JdomParser();
+        try
+        {
+            URI uri = new URI(data.getStringValue("install", "changeLog"));
+            URLConnection connection = uri.toURL().openConnection();
+            InputStream in = connection.getInputStream();
+            return parser.parse(new InputStreamReader(in, Charsets.UTF_8));
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     static class URLISSupplier implements InputSupplier<InputStream>

@@ -1,5 +1,6 @@
 package fr.minecraftforgefrance.common;
 
+import static argo.jdom.JsonNodeBuilders.aStringBuilder;
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
 import java.awt.Dimension;
@@ -21,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -36,7 +38,9 @@ import argo.format.PrettyJsonFormatter;
 import argo.jdom.JdomParser;
 import argo.jdom.JsonField;
 import argo.jdom.JsonNode;
+import argo.jdom.JsonNodeBuilders;
 import argo.jdom.JsonNodeFactories;
+import argo.jdom.JsonObjectNodeBuilder;
 import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
 import argo.saj.InvalidSyntaxException;
@@ -90,12 +94,25 @@ public class ProcessInstall
 
         this.currentDownload = new JLabel(" ");
         this.downloadSpeedLabel = new JLabel(" ");
+
         this.panel = new JPanel();
         this.panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         this.panel.add(currentDownload);
         this.panel.add(fileProgressBar);
         this.panel.add(fullProgressBar);
         this.panel.add(downloadSpeedLabel);
+
+        if(RemoteInfoReader.instance().hasChangeLog())
+        {
+            JTextArea area = new JTextArea();
+            area.setBounds(4, 2, 492, 150);
+            this.getChangeLog(area);
+            if(!area.getText().isEmpty())
+            {
+                this.frame.setSize(500, 250);
+                this.panel.add(area);
+            }
+        }
 
         this.frame.setContentPane(panel);
 
@@ -113,6 +130,38 @@ public class ProcessInstall
             return;
         }
         this.downloadFiles();
+    }
+
+    private void getChangeLog(JTextArea area)
+    {
+        String currentVersion = null;
+        File modpackInfo = new File(modPackDir, RemoteInfoReader.instance().getModPackName() + ".json");
+        if(modpackInfo.exists())
+        {
+            JdomParser jsonParser = new JdomParser();
+            try
+            {
+                JsonRootNode jsonProfileData = jsonParser.parse(Files.newReader(modpackInfo, Charsets.UTF_8));
+                currentVersion = jsonProfileData.getStringValue("currentVersion");
+            }
+            catch(Exception e)
+            {
+
+            }
+        }
+        for(JsonField field : RemoteInfoReader.instance().getChangeLog().getFieldList())
+        {
+            if(field.getName().getText().equals(currentVersion))
+            {
+                break;
+            }
+            area.append(field.getName().getText() + ":\n");
+            String[] changes = field.getValue().getText().split("\n");
+            for(String change : changes)
+            {
+                area.append("- " + change + "\n");
+            }
+        }
     }
 
     private int getTotalDownloadSize()
@@ -409,7 +458,15 @@ public class ProcessInstall
             }
         }
 
-        JsonRootNode json = JsonNodeFactories.object(JsonNodeFactories.field("forge", JsonNodeFactories.string(RemoteInfoReader.instance().getForgeVersion())), JsonNodeFactories.field("remote", JsonNodeFactories.string(RemoteInfoReader.instance().remoteUrl)));
+        JsonObjectNodeBuilder jsonBuilder = JsonNodeBuilders.anObjectBuilder().withField("forge", aStringBuilder(RemoteInfoReader.instance().getForgeVersion()));
+        jsonBuilder.withField("remote", aStringBuilder(RemoteInfoReader.instance().remoteUrl));
+        if(RemoteInfoReader.instance().hasChangeLog())
+        {
+            JsonRootNode changeLog = RemoteInfoReader.instance().getChangeLog();
+            if(changeLog != null && changeLog.hasFields())
+                jsonBuilder.withField("currentVersion", aStringBuilder(changeLog.getFieldList().get(0).getName().getText()));
+        }
+        JsonRootNode json = jsonBuilder.build();
         try
         {
             BufferedWriter writer = Files.newWriter(info, Charsets.UTF_8);

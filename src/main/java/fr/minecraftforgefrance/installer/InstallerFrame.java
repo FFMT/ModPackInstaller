@@ -41,7 +41,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 
     public InstallerFrame()
     {
-        this.setTitle(String.format(LANG.getTranslation("title.installer"), RemoteInfoReader.instance().getModPackName()));
+        this.setTitle(String.format(LANG.getTranslation("title.installer"), RemoteInfoReader.instance().getModPackDisplayName()));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
 
