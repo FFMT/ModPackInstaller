@@ -2,7 +2,7 @@ package fr.minecraftforgefrance.common;
 
 public interface IInstallRunner
 {
-	void onFinish();
-	
-	boolean shouldDownloadLib();
+    void onFinish();
+
+    boolean shouldDownloadLib();
 }

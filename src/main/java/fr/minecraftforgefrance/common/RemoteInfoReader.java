@@ -135,7 +135,7 @@ public class RemoteInfoReader
     {
         return data.getStringValue("install", "webSite");
     }
-    
+
     public boolean hasCredits()
     {
         return data.isStringValue("install", "credits");

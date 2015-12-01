@@ -122,7 +122,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             }
         });
         buttonPanel.add(credit);
-        
+
         JButton option = new JButton(LANG.getTranslation("scr.btn.options"));
         option.addActionListener(new ActionListener()
         {

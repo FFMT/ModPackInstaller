@@ -128,7 +128,7 @@ public class OptionFrame extends JDialog
     {
         this.selectedDirText.setText(newMCDir.getPath());
         this.modpackFolder.setText(newMCDir.getPath() + File.separator + "modpack" + File.separator + RemoteInfoReader.instance().getModPackName());
-        
+
         File launcherProfiles = new File(newMCDir, "launcher_profiles.json");
         if(!launcherProfiles.exists())
         {
