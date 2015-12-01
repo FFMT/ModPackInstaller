@@ -59,27 +59,15 @@ public class ProcessInstall
 
     private static final JsonFormatter JSON_FORMATTER = new PrettyJsonFormatter();
 
-    public ProcessInstall(FileChecker file, IInstallRunner runner, boolean update)
-    {
-        this(file, runner, update, null);
-    }
-
     public ProcessInstall(FileChecker file, IInstallRunner runner, boolean update, File mcDir)
     {
         this.fileChecker = file;
         this.runner = runner;
         this.update = update;
-        if(mcDir != null)
-        {
-            this.mcDir = mcDir;
-        }
-        else
-        {
-            this.mcDir = EnumOS.getMinecraftDefaultDir();
-        }
+        this.mcDir = mcDir;
         this.modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
     }
-    
+
     public void run()
     {
         this.frame = new JFrame();

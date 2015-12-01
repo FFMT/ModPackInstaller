@@ -5,13 +5,14 @@ import static fr.minecraftforgefrance.common.Localization.LANG;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,27 +20,34 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import fr.minecraftforgefrance.common.EnumOS;
+import fr.minecraftforgefrance.common.RemoteInfoReader;
 
-public class OptionFrame extends JFrame
+public class OptionFrame extends JDialog
 {
     private static final long serialVersionUID = 1L;
-    public static File targetDir = EnumOS.getMinecraftDefaultDir();
-    public JTextField selectedDirText;
+    public JLabel modpackFolder;
+    public JLabel infoLabel;
+    private JTextField selectedDirText;
 
     public OptionFrame(Dimension dim)
     {
         this.setTitle(LANG.getTranslation("title.options"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
-        selectedDirText = new JTextField();
-        selectedDirText.setEditable(false);
-        selectedDirText.setToolTipText("Path to minecraft");
-        selectedDirText.setColumns(30);
-        selectedDirText.setText(targetDir.getPath());
-        panel.add(selectedDirText);
+        JLabel gameFolder = new JLabel(LANG.getTranslation("option.mcDir.info"));
+        gameFolder.setAlignmentX(CENTER_ALIGNMENT);
+        mainPanel.add(gameFolder);
+
+        JPanel panel1 = new JPanel();
+        panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+        this.selectedDirText = new JTextField();
+        this.selectedDirText.setEditable(false);
+        this.selectedDirText.setColumns(35);
+        panel1.add(this.selectedDirText);
+
         JButton dirSelect = new JButton();
         dirSelect.setAction(new AbstractAction()
         {
@@ -51,21 +59,20 @@ public class OptionFrame extends JFrame
                 JFileChooser dirChooser = new JFileChooser();
                 dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 dirChooser.setFileHidingEnabled(false);
-                dirChooser.ensureFileIsVisible(OptionFrame.targetDir);
-                dirChooser.setSelectedFile(OptionFrame.targetDir);
+                dirChooser.ensureFileIsVisible(EnumOS.getMinecraftDefaultDir());
+                dirChooser.setSelectedFile(EnumOS.getMinecraftDefaultDir());
                 int response = dirChooser.showOpenDialog(OptionFrame.this);
                 switch(response)
                 {
                     case JFileChooser.APPROVE_OPTION:
                         try
                         {
-                            OptionFrame.targetDir = dirChooser.getSelectedFile().getCanonicalFile();
+                            OptionFrame.this.updateMinecraftDir(dirChooser.getSelectedFile().getCanonicalFile());
                         }
                         catch(IOException e1)
                         {
                             e1.printStackTrace();
                         }
-                        OptionFrame.this.selectedDirText.setText(targetDir.getPath());
                         break;
                     default:
                         break;
@@ -74,31 +81,65 @@ public class OptionFrame extends JFrame
 
         });
         dirSelect.setText("...");
-        dirSelect.setToolTipText("Select an alternative minecraft directory");
-        panel.add(dirSelect);
+        dirSelect.setToolTipText(LANG.getTranslation("option.mcDir.select"));
+        panel1.add(dirSelect);
+        panel1.setAlignmentY(TOP_ALIGNMENT);
+        mainPanel.add(panel1);
 
-        panel.setAlignmentX(LEFT_ALIGNMENT);
-        panel.setAlignmentY(TOP_ALIGNMENT);
-        JLabel infoLabel = new JLabel();
-        infoLabel.setHorizontalTextPosition(JLabel.LEFT);
-        infoLabel.setVerticalTextPosition(JLabel.TOP);
-        infoLabel.setAlignmentX(LEFT_ALIGNMENT);
-        infoLabel.setAlignmentY(TOP_ALIGNMENT);
-        infoLabel.setForeground(Color.RED);
-        infoLabel.setVisible(false);
+        this.infoLabel = new JLabel();
+        this.infoLabel.setForeground(Color.RED);
+        this.infoLabel.setVisible(false);
+        this.infoLabel.setAlignmentX(CENTER_ALIGNMENT);
+        mainPanel.add(this.infoLabel);
 
-        JPanel fileEntryPanel = new JPanel();
-        fileEntryPanel.setLayout(new BoxLayout(fileEntryPanel, BoxLayout.Y_AXIS));
-        fileEntryPanel.add(infoLabel);
-        fileEntryPanel.add(Box.createVerticalGlue());
-        fileEntryPanel.add(panel);
-        fileEntryPanel.setAlignmentX(CENTER_ALIGNMENT);
-        fileEntryPanel.setAlignmentY(TOP_ALIGNMENT);
-        this.add(fileEntryPanel);
-        this.add(panel);
+        JLabel label = new JLabel(LANG.getTranslation("option.modpackDir.info"));
+        label.setAlignmentX(CENTER_ALIGNMENT);
+        label.setAlignmentY(TOP_ALIGNMENT);
+        mainPanel.add(label);
+
+        this.modpackFolder = new JLabel();
+        this.modpackFolder.setAlignmentX(CENTER_ALIGNMENT);
+        this.modpackFolder.setAlignmentY(BOTTOM_ALIGNMENT);
+        mainPanel.add(this.modpackFolder);
+
+        JPanel buttonPanel = new JPanel();
+        JButton confirm = new JButton(LANG.getTranslation("option.confirm"));
+        confirm.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                OptionFrame.this.dispose();
+            }
+        });
+        buttonPanel.add(confirm);
+
+        mainPanel.add(buttonPanel);
+
+        this.add(mainPanel);
         this.pack();
         int x = (dim.width / 2) - (this.getSize().width / 2);
         int y = (dim.height / 2) - (this.getSize().height / 2);
         this.setLocation(x, y);
+        this.updateMinecraftDir(EnumOS.getMinecraftDefaultDir());
+    }
+
+    public void updateMinecraftDir(File newMCDir)
+    {
+        this.selectedDirText.setText(newMCDir.getPath());
+        this.modpackFolder.setText(newMCDir.getPath() + File.separator + "modpack" + File.separator + RemoteInfoReader.instance().getModPackName());
+        
+        File launcherProfiles = new File(newMCDir, "launcher_profiles.json");
+        if(!launcherProfiles.exists())
+        {
+            this.infoLabel.setText(LANG.getTranslation("option.folder.notValid"));
+            this.infoLabel.setVisible(true);
+        }
+        else
+        {
+            Installer.frame.mcDir = newMCDir;
+            this.infoLabel.setVisible(false);
+        }
+        this.pack();
     }
 }

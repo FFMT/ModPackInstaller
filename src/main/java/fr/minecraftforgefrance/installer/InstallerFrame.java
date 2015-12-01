@@ -1,5 +1,7 @@
 package fr.minecraftforgefrance.installer;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -25,9 +27,9 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Throwables;
 
+import fr.minecraftforgefrance.common.EnumOS;
 import fr.minecraftforgefrance.common.FileChecker;
 import fr.minecraftforgefrance.common.IInstallRunner;
-import static fr.minecraftforgefrance.common.Localization.LANG;
 import fr.minecraftforgefrance.common.ProcessInstall;
 import fr.minecraftforgefrance.common.RemoteInfoReader;
 import fr.minecraftforgefrance.plusplus.PlusPlusGame;
@@ -35,6 +37,7 @@ import fr.minecraftforgefrance.plusplus.PlusPlusGame;
 public class InstallerFrame extends JFrame implements IInstallRunner
 {
     private static final long serialVersionUID = 1L;
+    public File mcDir = EnumOS.getMinecraftDefaultDir();
 
     public InstallerFrame()
     {
@@ -79,9 +82,9 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                dispose();
-                FileChecker checker = new FileChecker();
-                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, false, OptionFrame.targetDir);
+                InstallerFrame.this.dispose();
+                FileChecker checker = new FileChecker(InstallerFrame.this.mcDir);
+                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, false, InstallerFrame.this.mcDir);
                 install.run();
             }
         });

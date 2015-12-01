@@ -10,6 +10,7 @@ import fr.minecraftforgefrance.common.RemoteInfoReader;
 
 public class Installer
 {
+    public static InstallerFrame frame;
 	public static void main(String[] args)
 	{
 		try
@@ -27,7 +28,7 @@ public class Installer
 			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotreadremote"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		InstallerFrame frame = new InstallerFrame();
+		frame = new InstallerFrame();
 		frame.run();
 	}
 }

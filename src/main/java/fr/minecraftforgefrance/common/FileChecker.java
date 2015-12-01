@@ -24,11 +24,13 @@ public class FileChecker
 	public List<FileEntry> missingList;
 	public List<FileEntry> outdatedList;
 
-	private File mcDir = EnumOS.getMinecraftDefaultDir();
-	private File modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
+	private final File mcDir;
+	private final File modPackDir;
 
-	public FileChecker()
+	public FileChecker(File mcDir)
 	{
+	    this.mcDir = mcDir;
+	    this.modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
 		DownloadMod.instance().getRemoteList(remoteList, checkDir);
 		this.getLocalFile();
 		this.compare();

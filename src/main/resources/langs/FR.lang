@@ -77,6 +77,13 @@ scr.btn.options=Options
 # CRÉDITS
 scr.credits.html=Installateur créé par %s avec la contribution de %s (interface) et %s (système de traduction)<br>Remerciement à %s, créateur de l'installateur de Forge qui a servi de source d'inspiration
 
+# Options
+option.mcDir.info=Dossier de Minecraft :
+option.mcDir.select=Sélectionner un dossier de jeu alternatif
+option.modpackDir.info=Le modpack va être installé dans le dossier suivant :
+option.confirm=Confirmer
+option.folder.notValid=Ce dossier n'est pas valide !
+
 
 
 ##############

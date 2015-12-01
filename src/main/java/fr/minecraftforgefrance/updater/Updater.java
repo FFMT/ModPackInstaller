@@ -87,7 +87,7 @@ public class Updater implements IInstallRunner
 		{
 			runMinecraft(args);
 		}
-		FileChecker checker = new FileChecker();
+		FileChecker checker = new FileChecker(mcDir);
 		if(!shouldUpdate(jsonProfileData.getStringValue("forge"), checker))
 		{
 			System.out.println(LANG.getTranslation("no.update.found"));
@@ -105,7 +105,8 @@ public class Updater implements IInstallRunner
 			{
 				e.printStackTrace();
 			}
-			new ProcessInstall(checker, this, true);
+			ProcessInstall install = new ProcessInstall(checker, this, true, mcDir);
+			install.run();
 		}
 	}
 
