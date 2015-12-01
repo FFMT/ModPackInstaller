@@ -149,17 +149,20 @@ public class ProcessInstall
 
             }
         }
-        for(JsonField field : RemoteInfoReader.instance().getChangeLog().getFieldList())
+        if(RemoteInfoReader.instance().getChangeLog() != null)
         {
-            if(field.getName().getText().equals(currentVersion))
+            for(JsonField field : RemoteInfoReader.instance().getChangeLog().getFieldList())
             {
-                break;
-            }
-            area.append(field.getName().getText() + ":\n");
-            String[] changes = field.getValue().getText().split("\n");
-            for(String change : changes)
-            {
-                area.append("- " + change + "\n");
+                if(field.getName().getText().equals(currentVersion))
+                {
+                    break;
+                }
+                area.append(field.getName().getText() + ":\n");
+                String[] changes = field.getValue().getText().split("\n");
+                for(String change : changes)
+                {
+                    area.append("- " + change + "\n");
+                }
             }
         }
     }
