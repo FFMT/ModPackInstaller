@@ -172,6 +172,16 @@ public class RemoteInfoReader
             return null;
         }
     }
+    
+    public boolean hasPreConfig()
+    {
+        return data.isStringValue("install", "preset");
+    }
+
+    public String getPreConfigUrl()
+    {
+        return data.getStringValue("install", "preset");
+    }
 
     static class URLISSupplier implements InputSupplier<InputStream>
     {

@@ -83,6 +83,7 @@ option.mcDir.select=Sélectionner un dossier de jeu alternatif
 option.modpackDir.info=Le modpack va être installé dans le dossier suivant :
 option.confirm=Confirmer
 option.folder.notValid=Ce dossier n'est pas valide !
+option.preset=Préconfiguration :
 
 
 
