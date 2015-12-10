@@ -1,5 +1,8 @@
 package fr.minecraftforgefrance.installer;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -9,7 +12,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -22,161 +27,210 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Throwables;
 
+import argo.jdom.JsonRootNode;
+import fr.minecraftforgefrance.common.EnumOS;
 import fr.minecraftforgefrance.common.FileChecker;
 import fr.minecraftforgefrance.common.IInstallRunner;
-import static fr.minecraftforgefrance.common.Localization.LANG;
 import fr.minecraftforgefrance.common.ProcessInstall;
 import fr.minecraftforgefrance.common.RemoteInfoReader;
 import fr.minecraftforgefrance.plusplus.PlusPlusGame;
 
 public class InstallerFrame extends JFrame implements IInstallRunner
 {
-	private static final long serialVersionUID = 1L;
-	
-	public InstallerFrame()
-	{
-		this.setTitle(String.format(LANG.getTranslation("title.installer"), RemoteInfoReader.instance().getModPackName()));
-		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		this.setResizable(false);
+    private static final long serialVersionUID = 1L;
+    public File mcDir = EnumOS.getMinecraftDefaultDir();
+    public String preSet = null;
 
-		BufferedImage image;
-		try
-		{
-			image = ImageIO.read(this.getClass().getResourceAsStream("/installer/logo.png"));
-		}
-		catch(IOException e)
-		{
-			throw Throwables.propagate(e);
-		}
+    public InstallerFrame()
+    {
+        this.setTitle(String.format(LANG.getTranslation("title.installer"), RemoteInfoReader.instance().getModPackDisplayName()));
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setResizable(false);
+        if(RemoteInfoReader.instance().hasPreset())
+        {
+            try
+            {
+                JsonRootNode json = RemoteInfoReader.instance().getPreset();
+                this.preSet = json.getStringValue("default");
+            }
+            catch(Exception e)
+            {
+                System.err.println("Cannot find default preset");
+                e.printStackTrace();
+            }
+        }
 
-		final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        BufferedImage image;
+        try
+        {
+            image = ImageIO.read(this.getClass().getResourceAsStream("/installer/logo.png"));
+        }
+        catch(IOException e)
+        {
+            throw Throwables.propagate(e);
+        }
 
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		ImageIcon icon = new ImageIcon(image);
-		JLabel logoLabel = new JLabel(icon);
-		logoLabel.setAlignmentX(CENTER_ALIGNMENT);
-		logoLabel.setAlignmentY(CENTER_ALIGNMENT);
-		if(image.getWidth() > dim.width || image.getHeight() + 10 > dim.height)
-		{
-			JOptionPane.showMessageDialog(null, LANG.getTranslation("err.bigimage"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-			this.dispose();
-		}
-		else
-		{
-			logoLabel.setSize(image.getWidth(), image.getHeight());
-			panel.add(logoLabel);
-		}
+        final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
-		JButton install = new JButton(LANG.getTranslation("scr.btn.install"));
-		install.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				dispose();
-				FileChecker checker = new FileChecker();
-				new ProcessInstall(checker, InstallerFrame.this, false);
-			}
-		});
-		
-		JButton credit = new JButton(LANG.getTranslation("scr.btn.credits"));
-		credit.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				CreditFrame credit = new CreditFrame(dim);
-				credit.setVisible(true);
-			}
-		});
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        ImageIcon icon = new ImageIcon(image);
+        JLabel logoLabel = new JLabel(icon);
+        logoLabel.setAlignmentX(CENTER_ALIGNMENT);
+        logoLabel.setAlignmentY(CENTER_ALIGNMENT);
+        if(image.getWidth() > dim.width || image.getHeight() + 10 > dim.height)
+        {
+            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.bigimage"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+            this.dispose();
+        }
+        else
+        {
+            logoLabel.setSize(image.getWidth(), image.getHeight());
+            panel.add(logoLabel);
+        }
 
-		JButton cancel = new JButton(LANG.getTranslation("misc.cancel"));
-		cancel.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				dispose();
-			}
-		});
+        JPanel buttonPanel = new JPanel();
 
-		JPanel buttonpanel = new JPanel();
-		buttonpanel.add(install);
-		buttonpanel.add(credit);
-		buttonpanel.add(cancel);
+        JButton install = new JButton(LANG.getTranslation("scr.btn.install"));
+        install.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                InstallerFrame.this.dispose();
+                FileChecker checker = new FileChecker(InstallerFrame.this.mcDir);
+                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, false, InstallerFrame.this.mcDir, InstallerFrame.this.preSet);
+                install.run();
+            }
+        });
+        buttonPanel.add(install);
 
-		JLabel welcome = new JLabel(RemoteInfoReader.instance().getWelcome());
-		welcome.setAlignmentX(CENTER_ALIGNMENT);
-		welcome.setAlignmentY(CENTER_ALIGNMENT);
+        if(RemoteInfoReader.instance().hasWebSite())
+        {
+            JButton webSite = new JButton(LANG.getTranslation("scr.btn.webSite"));
+            webSite.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    try
+                    {
+                        Desktop.getDesktop().browse(new URI(RemoteInfoReader.instance().getWebSite()));
+                    }
+                    catch(Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(InstallerFrame.this, String.format(LANG.getTranslation("err.cannotopenurl"), RemoteInfoReader.instance().getWebSite()), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+            buttonPanel.add(webSite);
+        }
 
-		JLabel mc = new JLabel("Minecraft : " + RemoteInfoReader.instance().getMinecraftVersion());
-		mc.setAlignmentX(CENTER_ALIGNMENT);
-		mc.setAlignmentY(CENTER_ALIGNMENT);
+        JButton credit = new JButton(LANG.getTranslation("scr.btn.credits"));
+        credit.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                CreditFrame credit = new CreditFrame(dim);
+                credit.setVisible(true);
+            }
+        });
+        buttonPanel.add(credit);
 
-		JLabel forge = new JLabel("Forge : " + RemoteInfoReader.instance().getForgeVersion());
-		forge.setAlignmentX(CENTER_ALIGNMENT);
-		forge.setAlignmentY(CENTER_ALIGNMENT);
+        JButton option = new JButton(LANG.getTranslation("scr.btn.options"));
+        option.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                OptionFrame credit = new OptionFrame(dim);
+                credit.setVisible(true);
+            }
+        });
+        buttonPanel.add(option);
 
-		panel.add(welcome);
-		panel.add(mc);
-		panel.add(forge);
-		panel.add(buttonpanel);
+        JButton cancel = new JButton(LANG.getTranslation("misc.cancel"));
+        cancel.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                InstallerFrame.this.dispose();
+            }
+        });
+        buttonPanel.add(cancel);
 
-		this.add(panel);
-		addWindowListener(new WindowAdapter()
-		{
-			public void windowOpened(WindowEvent e)
-			{
-				requestFocus();
-			}
-		});
-		this.pack();
+        JLabel welcome = new JLabel(RemoteInfoReader.instance().getWelcome());
+        welcome.setAlignmentX(CENTER_ALIGNMENT);
+        welcome.setAlignmentY(CENTER_ALIGNMENT);
 
-		int x = (dim.width / 2) - (this.getSize().width / 2);
-		int y = (dim.height / 2) - (this.getSize().height / 2);
-		this.setLocation(x, y);
+        JLabel mc = new JLabel("Minecraft : " + RemoteInfoReader.instance().getMinecraftVersion());
+        mc.setAlignmentX(CENTER_ALIGNMENT);
+        mc.setAlignmentY(CENTER_ALIGNMENT);
 
-		addKeyListener(new KeyListener()
-		{
-			@Override
-			public void keyTyped(KeyEvent e)
-			{
-				if(e.getKeyChar() == '+' && !PlusPlusGame.isRunning)
-				{
-					new PlusPlusGame();
-				}
-			}
+        JLabel forge = new JLabel("Forge : " + RemoteInfoReader.instance().getForgeVersion());
+        forge.setAlignmentX(CENTER_ALIGNMENT);
+        forge.setAlignmentY(CENTER_ALIGNMENT);
 
-			@Override
-			public void keyReleased(KeyEvent e)
-			{
+        panel.add(welcome);
+        panel.add(mc);
+        panel.add(forge);
+        panel.add(buttonPanel);
 
-			}
+        this.add(panel);
+        addWindowListener(new WindowAdapter()
+        {
+            public void windowOpened(WindowEvent e)
+            {
+                requestFocus();
+            }
+        });
+        this.pack();
 
-			@Override
-			public void keyPressed(KeyEvent e)
-			{
+        int x = (dim.width / 2) - (this.getSize().width / 2);
+        int y = (dim.height / 2) - (this.getSize().height / 2);
+        this.setLocation(x, y);
 
-			}
-		});
-	}
+        addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+                if(e.getKeyChar() == '+' && !PlusPlusGame.isRunning)
+                {
+                    new PlusPlusGame();
+                }
+            }
 
-	public void run()
-	{
-		this.setVisible(true);
-	}
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
 
+            }
 
-	@Override
-	public void onFinish()
-	{
-		JOptionPane.showMessageDialog(null, LANG.getTranslation("installation.success"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
-	}
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
 
-	@Override
-	public boolean shouldDownloadLib()
-	{
-		return true;
-	}
+            }
+        });
+    }
+
+    public void run()
+    {
+        this.setVisible(true);
+    }
+
+    @Override
+    public void onFinish()
+    {
+        JOptionPane.showMessageDialog(null, LANG.getTranslation("installation.success"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    @Override
+    public boolean shouldDownloadLib()
+    {
+        return true;
+    }
 }

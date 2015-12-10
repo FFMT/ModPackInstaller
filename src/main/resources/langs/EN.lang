@@ -31,7 +31,7 @@ err.cannotdownload=Could not download
 err.cannotwriteversion=There was a problem while writing the launcher version. Is it write protected?
 err.cannotwriteprofile=There was a problem while writing the launcher profile. Is it write protected?
 err.cannotreadremote=Could not read remote info, please check your Internet connection
-err.cannotopenurl=An error occurred while opening URL
+err.cannotopenurl=An error occurred while opening URL : %s
 err.bigimage=The image is too big!
 err.cannotfindlocalinfo=Local information not found, file /installer/local_info.json is missing in the jar
 err.invalidjson=The local json is not valid, please check it with this website : http://jsonlint.com/
@@ -46,6 +46,7 @@ installation.success=Installation finished !
 no.update.found=No update found, launching Minecraft !
 update.checked.in=Update checked in %d ms
 update.finished.success=Update finished successfully, please restart the game !
+
 # Processes running
 proc.unpackingfile=Unpacking packed file
 proc.downloadinglib=Downloading library %s
@@ -64,14 +65,27 @@ proc.startingupdater=Starting the Updater...
 title.credits=Credits
 title.libs=Downloading and extracting libraries...
 title.installer=%s Installer
+title.options=Options
+title.preset=Downloading presets...
+
 
 # Buttons
-scr.btn.mffwebsite=Minecraft Forge France website
+scr.btn.mffwebsite=MFF website
 scr.btn.install=Install
 scr.btn.credits=Credits
+scr.btn.webSite=Web site
+scr.btn.options=Options
 
 # CREDITS
-scr.credits.html=<html><center>Created by :</center><br>robin4002 - project founder<br>kevin_68 - GUI<br>utybo - Translation system<br><br><center>Other contributions :</center><br>cpw - Creator of the Forge installer that served as an inspiration<br>The Forge Team</html>
+scr.credits.html=Installer created by %s with the help of %s (GUI) and %s (translation system)<br>Thank to %s, creator of the Forge installer that served as an inspiration
+
+# Options
+option.mcDir.info=Minecraft folder :
+option.mcDir.select=Select an alternative minecraft directory
+option.modpackDir.info=The modpack will be installed in the following folder :
+option.confirm=Confirm
+option.folder.notValid=This folder ins't valid !
+option.preset=Preset :
 
 
 

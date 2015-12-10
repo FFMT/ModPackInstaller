@@ -31,7 +31,7 @@ err.cannotdownload=Impossible de télécharger
 err.cannotwriteversion=Il y a eu un problème lors de l'écriture de la version du launcher. Les permissions en écriture sont-elles accordées?
 err.cannotwriteprofile=Il y a eu un problème lors de l'écriture du profil. Les permissions en écriture sont-elles accordées?
 err.cannotreadremote=Impossible d'obtenir les informations de l'hôte distant, veuillez vérifier votre connexion Internet
-err.cannotopenurl=Problème lors de l'ouverture de l'URL
+err.cannotopenurl=Problème lors de l'ouverture de l'URL : %s
 err.bigimage=L'image est trop grande
 err.cannotfindlocalinfo=Informations locales introuvables, le fichier /installer/local_info.json est manquant dans le .jar
 err.invalidjson=Json local invalide, veuillez le vérifiez avec http://jsonlint.com/
@@ -65,14 +65,26 @@ proc.startingupdater=Démarrage de l'utilitaire de mise à jour..
 title.credits=Crédits
 title.libs=Téléchargement et décompression des bibliothèques...
 title.installer=Installeur de %s
+title.options=Options
+title.preset=Téléchargement des préconfigurations...
 
 # Boutons
-scr.btn.mffwebsite=Site web de Minecraft Forge France
+scr.btn.mffwebsite=Site web de MFF
 scr.btn.install=Installer
 scr.btn.credits=Crédits
+scr.btn.webSite=Site web
+scr.btn.options=Options
 
 # CRÉDITS
-scr.credits.html=<html><center>Créé par :</center><br>robin4002 - Fondateur du projet<br>kevin_68 - Interface<br>utybo - Système de traduction<br><br><center>Autres contributions :</center><br>cpw - Créateur de l'installateur de Forge qui a servi de source d'inspiration<br>L'équipe de Forge</html>
+scr.credits.html=Installateur créé par %s avec la contribution de %s (interface) et %s (système de traduction)<br>Remerciement à %s, créateur de l'installateur de Forge qui a servi de source d'inspiration
+
+# Options
+option.mcDir.info=Dossier de Minecraft :
+option.mcDir.select=Sélectionner un dossier de jeu alternatif
+option.modpackDir.info=Le modpack va être installé dans le dossier suivant :
+option.confirm=Confirmer
+option.folder.notValid=Ce dossier n'est pas valide !
+option.preset=Préconfiguration :
 
 
 
