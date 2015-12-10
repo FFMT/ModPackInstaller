@@ -173,12 +173,29 @@ public class RemoteInfoReader
         }
     }
     
-    public boolean hasPreConfig()
+    public boolean hasPreset()
     {
         return data.isStringValue("install", "preset");
     }
 
-    public String getPreConfigUrl()
+    public JsonRootNode getPreset()
+    {
+        JdomParser parser = new JdomParser();
+        try
+        {
+            URI uri = new URI(data.getStringValue("install", "preset"));
+            URLConnection connection = uri.toURL().openConnection();
+            InputStream in = connection.getInputStream();
+            return parser.parse(new InputStreamReader(in, Charsets.UTF_8));
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public String getPresetUrl()
     {
         return data.getStringValue("install", "preset");
     }

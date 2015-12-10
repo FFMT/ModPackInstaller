@@ -66,6 +66,8 @@ title.credits=Credits
 title.libs=Downloading and extracting libraries...
 title.installer=%s Installer
 title.options=Options
+title.preset=Downloading presets...
+
 
 # Buttons
 scr.btn.mffwebsite=MFF website

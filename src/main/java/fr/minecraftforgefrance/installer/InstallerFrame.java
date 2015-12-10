@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 
 import com.google.common.base.Throwables;
 
+import argo.jdom.JsonRootNode;
 import fr.minecraftforgefrance.common.EnumOS;
 import fr.minecraftforgefrance.common.FileChecker;
 import fr.minecraftforgefrance.common.IInstallRunner;
@@ -38,12 +39,26 @@ public class InstallerFrame extends JFrame implements IInstallRunner
 {
     private static final long serialVersionUID = 1L;
     public File mcDir = EnumOS.getMinecraftDefaultDir();
+    public String preSet = null;
 
     public InstallerFrame()
     {
         this.setTitle(String.format(LANG.getTranslation("title.installer"), RemoteInfoReader.instance().getModPackDisplayName()));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
+        if(RemoteInfoReader.instance().hasPreset())
+        {
+            try
+            {
+                JsonRootNode json = RemoteInfoReader.instance().getPreset();
+                this.preSet = json.getStringValue("default");
+            }
+            catch(Exception e)
+            {
+                System.err.println("Cannot find default preset");
+                e.printStackTrace();
+            }
+        }
 
         BufferedImage image;
         try
@@ -84,7 +99,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             {
                 InstallerFrame.this.dispose();
                 FileChecker checker = new FileChecker(InstallerFrame.this.mcDir);
-                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, false, InstallerFrame.this.mcDir);
+                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, false, InstallerFrame.this.mcDir, InstallerFrame.this.preSet);
                 install.run();
             }
         });

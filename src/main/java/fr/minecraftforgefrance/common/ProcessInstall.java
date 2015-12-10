@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,8 @@ import argo.jdom.JsonField;
 import argo.jdom.JsonNode;
 import argo.jdom.JsonNodeBuilders;
 import argo.jdom.JsonNodeFactories;
+import argo.jdom.JsonNodeSelector;
+import argo.jdom.JsonNodeSelectors;
 import argo.jdom.JsonObjectNodeBuilder;
 import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
@@ -60,16 +63,18 @@ public class ProcessInstall
     private final FileChecker fileChecker;
     private final IInstallRunner runner;
     private final boolean update;
+    private final String preset;
 
     private static final JsonFormatter JSON_FORMATTER = new PrettyJsonFormatter();
 
-    public ProcessInstall(FileChecker file, IInstallRunner runner, boolean update, File mcDir)
+    public ProcessInstall(FileChecker file, IInstallRunner runner, boolean update, File mcDir, String preset)
     {
         this.fileChecker = file;
         this.runner = runner;
         this.update = update;
         this.mcDir = mcDir;
         this.modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
+        this.preset = preset;
     }
 
     public void run()
@@ -202,9 +207,13 @@ public class ProcessInstall
             public void run()
             {
                 downloadMod(this);
-                if(runner.shouldDownloadLib())
+                if(ProcessInstall.this.runner.shouldDownloadLib())
                 {
                     downloadLib(this);
+                }
+                if(ProcessInstall.this.preset != null)
+                {
+                    downloadPreset(this);
                 }
                 finish();
             }
@@ -350,9 +359,57 @@ public class ProcessInstall
             }
         }
     }
+    
+    public void downloadPreset(Thread thread)
+    {
+        this.frame.setTitle(LANG.getTranslation("title.preset"));
+        final JsonRootNode data = RemoteInfoReader.instance().getPreset();
+        final JsonNodeSelector<JsonNode, List<JsonNode>> preSet = JsonNodeSelectors.anArrayNode(this.preset);
+        final JsonNodeSelector<JsonNode, String> preSetName = JsonNodeSelectors.aStringNode();
+        List<String> files = new AbstractList<String>()
+        {
+            public String get(int index)
+            {
+                return preSetName.getValue(preSet.getValue(data).get(index));
+            }
 
+            public int size()
+            {
+                return preSet.getValue(data).size();
+            }
+        };
+        for(String file : files)
+        {
+            File destFile = new File(modPackDir, file);
+            if(!destFile.getParentFile().exists())
+            {
+                destFile.getParentFile().mkdirs();
+            }
+            currentDownload.setText(file);
+            try
+            {
+                if(!DownloadUtils.downloadFile(new URL(RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file)), destFile, fileProgressBar, fullProgressBar, downloadSpeedLabel))
+                {
+                    frame.dispose();
+                    thread.interrupt();
+                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            catch(HeadlessException e)
+            {
+                e.printStackTrace();
+            }
+            catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public void finish()
     {
+        this.fullProgressBar.setMaximum(100);
+        this.fullProgressBar.setValue(100);
         this.frame.setTitle(LANG.getTranslation("misc.finishing"));
         this.createOrUpdateProfile();
         this.writeModPackInfo();

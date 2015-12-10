@@ -66,6 +66,7 @@ title.credits=Crédits
 title.libs=Téléchargement et décompression des bibliothèques...
 title.installer=Installeur de %s
 title.options=Options
+title.preset=Téléchargement des préconfigurations...
 
 # Boutons
 scr.btn.mffwebsite=Site web de MFF
