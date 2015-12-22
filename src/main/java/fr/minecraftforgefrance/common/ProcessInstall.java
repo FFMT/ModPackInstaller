@@ -475,16 +475,16 @@ public class ProcessInstall
         JsonField[] fields = null;
         if(RemoteInfoReader.instance().hasArgument())
         {
-            fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("javaArgs", JsonNodeFactories.string(RemoteInfoReader.instance().getArgument()))};
+            fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(RemoteInfoReader.instance().getModPackDisplayName())), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("javaArgs", JsonNodeFactories.string(RemoteInfoReader.instance().getArgument()))};
         }
         else
         {
-            fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName))};
+            fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(RemoteInfoReader.instance().getModPackDisplayName())), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName))};
         }
 
         HashMap<JsonStringNode, JsonNode> profileCopy = Maps.newHashMap(jsonProfileData.getNode("profiles").getFields());
         HashMap<JsonStringNode, JsonNode> rootCopy = Maps.newHashMap(jsonProfileData.getFields());
-        profileCopy.put(JsonNodeFactories.string(modpackName), JsonNodeFactories.object(fields));
+        profileCopy.put(JsonNodeFactories.string(RemoteInfoReader.instance().getModPackDisplayName()), JsonNodeFactories.object(fields));
         JsonRootNode profileJsonCopy = JsonNodeFactories.object(profileCopy);
 
         rootCopy.put(JsonNodeFactories.string("profiles"), profileJsonCopy);
