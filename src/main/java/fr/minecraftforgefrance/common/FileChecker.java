@@ -14,6 +14,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import argo.jdom.JsonField;
+
 public class FileChecker
 {
     public List<FileEntry> remoteList = Collections.synchronizedList(new ArrayList<FileEntry>());
@@ -73,19 +75,19 @@ public class FileChecker
 
     private void compare()
     {
-        this.missingList = new ArrayList<FileEntry>(remoteList);
-        this.missingList.removeAll(localList);
+        this.missingList = new ArrayList<FileEntry>(this.remoteList);
+        this.missingList.removeAll(this.localList);
 
-        this.outdatedList = new ArrayList<FileEntry>(syncList);
-        this.outdatedList.removeAll(remoteList);
+        this.outdatedList = new ArrayList<FileEntry>(this.syncList);
+        this.outdatedList.removeAll(this.remoteList);
 
-        if(RemoteInfoReader.instance().hasWhiteList())
+        if(RemoteInfoReader.instance().hasWhiteList() && !this.outdatedList.isEmpty())
         {
-            for(String md5 : RemoteInfoReader.instance().getWhileList())
+            for(JsonField field : RemoteInfoReader.instance().getWhileList().getFieldList())
             {
                 for(FileEntry file : this.outdatedList)
                 {
-                    if(file.getMd5().equals(md5))
+                    if(file.getMd5().equals(field.getValue().getText()))
                     {
                         this.outdatedList.remove(file);
                         break;
