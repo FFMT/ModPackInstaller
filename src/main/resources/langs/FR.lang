@@ -36,6 +36,7 @@ err.bigimage=L'image est trop grande
 err.cannotfindlocalinfo=Informations locales introuvables, le fichier /installer/local_info.json est manquant dans le .jar
 err.invalidjson=Json local invalide, veuillez le vérifiez avec http://jsonlint.com/
 err.erroredprofile=Profil érroné, veuiller utiliser le launcher officiel pour corriger cela!
+err.runminecraft=Impossible de lancer Minecraft, lancez-le manuellement
 
 # Tâches effectuées
 file.unpacked.success=%s à été décompressé
@@ -74,6 +75,8 @@ scr.btn.install=Installer
 scr.btn.credits=Crédits
 scr.btn.webSite=Site web
 scr.btn.options=Options
+scr.btn.exit=Fermer
+scr.btn.run=Lancer Minecraft
 
 # CRÉDITS
 scr.credits.html=Installateur créé par %s avec la contribution de %s (interface) et %s (système de traduction)<br>Remerciement à %s, créateur de l'installateur de Forge qui a servi de source d'inspiration

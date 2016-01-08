@@ -225,7 +225,8 @@ public class InstallerFrame extends JFrame implements IInstallRunner
     @Override
     public void onFinish()
     {
-        JOptionPane.showMessageDialog(null, LANG.getTranslation("installation.success"), LANG.getTranslation("misc.success"), JOptionPane.INFORMATION_MESSAGE);
+        SuccessFrame credit = new SuccessFrame();
+        credit.setVisible(true);
     }
 
     @Override

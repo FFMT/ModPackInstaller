@@ -36,6 +36,7 @@ err.bigimage=The image is too big!
 err.cannotfindlocalinfo=Local information not found, file /installer/local_info.json is missing in the jar
 err.invalidjson=The local json is not valid, please check it with this website : http://jsonlint.com/
 err.erroredprofile=Errored profile, please re-install it!
+err.runminecraft=can't run the game, run it manually
 
 # Tasks done
 file.unpacked.success=Successfully unpacked %s
@@ -75,6 +76,8 @@ scr.btn.install=Install
 scr.btn.credits=Credits
 scr.btn.webSite=Web site
 scr.btn.options=Options
+scr.btn.exit=Exit
+scr.btn.run=Run Minecraft
 
 # CREDITS
 scr.credits.html=Installer created by %s with the help of %s (GUI) and %s (translation system)<br>Thank to %s, creator of the Forge installer that served as an inspiration
