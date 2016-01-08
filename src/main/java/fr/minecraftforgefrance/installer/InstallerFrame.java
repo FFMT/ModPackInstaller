@@ -225,8 +225,8 @@ public class InstallerFrame extends JFrame implements IInstallRunner
     @Override
     public void onFinish()
     {
-        SuccessFrame credit = new SuccessFrame();
-        credit.setVisible(true);
+        SuccessFrame successFrame = new SuccessFrame();
+        successFrame.setVisible(true);
     }
 
     @Override
