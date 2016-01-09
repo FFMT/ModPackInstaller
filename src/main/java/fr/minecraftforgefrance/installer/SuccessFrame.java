@@ -55,14 +55,6 @@ public class SuccessFrame extends JFrame
                 try
                 {
                     Process ps = Runtime.getRuntime().exec("java -jar " + Installer.frame.mcDir.getPath() + File.separator + "launcher.jar");
-                    ps.waitFor();
-                    InputStream is = ps.getErrorStream();
-                    byte b[] = new byte[is.available()];
-                    is.read(b, 0, b.length);
-                    if(new String(b).contains("Error"))
-                    {
-                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-                    }
                 }
                 catch(Exception ex)
                 {
