@@ -84,6 +84,7 @@ task fullUpdaterJar(type: Jar, dependsOn: "updaterJar"){
     from(configurations.compile.collect { zipTree(it).matching { 
 	include 'org/tukaani/**/*.class'
 	include 'utybo/minkj/**/*.class'
+	include 'argo/**/*.class'
 	} })
     archiveName = "updater-${project.version}-full.jar"
 }

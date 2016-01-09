@@ -8,8 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.io.InputStream;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -55,11 +54,15 @@ public class SuccessFrame extends JFrame
             {
                 try
                 {
-                    @SuppressWarnings("resource")
-                    Class<?> launcherMainClass = new URLClassLoader(new URL[] {(new File(Installer.frame.mcDir, "launcher.jar")).toURI().toURL()}).loadClass("net.minecraft.launcher.Main");
-                    java.lang.reflect.Method m = launcherMainClass.getMethod("main", String[].class);
-                    String[] params = new String[]{"workDir", Installer.frame.mcDir.toString()};
-                    m.invoke(null, (Object)params);
+                    Process ps = Runtime.getRuntime().exec("java -jar " + Installer.frame.mcDir.getPath() + File.separator + "launcher.jar");
+                    ps.waitFor();
+                    InputStream is = ps.getErrorStream();
+                    byte b[] = new byte[is.available()];
+                    is.read(b, 0, b.length);
+                    if(new String(b).contains("Error"))
+                    {
+                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    }
                 }
                 catch(Exception ex)
                 {
