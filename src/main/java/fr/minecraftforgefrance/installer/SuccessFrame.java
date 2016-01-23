@@ -8,13 +8,14 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.InputStream;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import fr.minecraftforgefrance.common.EnumOS;
 
 public class SuccessFrame extends JFrame
 {
@@ -53,8 +54,8 @@ public class SuccessFrame extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                 try
-                {
-                    Process ps = Runtime.getRuntime().exec("java -jar " + Installer.frame.mcDir.getPath() + File.separator + "launcher.jar");
+                {   
+                    Runtime.getRuntime().exec(EnumOS.getJavaExecutable() + " -jar " + Installer.frame.mcDir.getPath() + File.separator + "launcher.jar");
                 }
                 catch(Exception ex)
                 {

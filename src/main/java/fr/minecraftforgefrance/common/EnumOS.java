@@ -45,4 +45,15 @@ public enum EnumOS
                 return new File(userHome, "minecraft");
         }
     }
+
+    public static String getJavaExecutable()
+    {
+        String separator = System.getProperty("file.separator");
+        String path = System.getProperty("java.home") + separator + "bin" + separator;
+        if((getPlatform() == WINDOWS) && (new File(path + "javaw.exe").isFile()))
+        {
+            return path + "javaw.exe";
+        }
+        return path + "java";
+    }
 }
