@@ -31,6 +31,7 @@ err.cannotdownload=Could not download
 err.cannotwriteversion=There was a problem while writing the launcher version. Is it write protected?
 err.cannotwriteprofile=There was a problem while writing the launcher profile. Is it write protected?
 err.cannotreadremote=Could not read remote info, please check your Internet connection
+err.jsoninvalid=The file remote_profile.json isn't valid !
 err.cannotopenurl=An error occurred while opening URL : %s
 err.bigimage=The image is too big!
 err.cannotfindlocalinfo=Local information not found, file /installer/local_info.json is missing in the jar

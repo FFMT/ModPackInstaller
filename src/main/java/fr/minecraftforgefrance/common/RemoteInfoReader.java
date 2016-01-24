@@ -1,10 +1,16 @@
 package fr.minecraftforgefrance.common;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
@@ -13,6 +19,7 @@ import com.google.common.collect.Lists;
 import argo.jdom.JdomParser;
 import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
+import argo.saj.InvalidSyntaxException;
 
 public class RemoteInfoReader
 {
@@ -28,7 +35,6 @@ public class RemoteInfoReader
 
     public boolean init()
     {
-        
         try
         {
             URI uri = new URI(this.remoteUrl);
@@ -37,8 +43,21 @@ public class RemoteInfoReader
             this.data = this.parser.parse(new InputStreamReader(in, Charsets.UTF_8));
             return true;
         }
-        catch(Exception e)
+        catch(InvalidSyntaxException e)
         {
+            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.jsoninvalid"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return false;
+        }
+        catch(IOException e)
+        {
+            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotreadremote"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return false;
+        }
+        catch(URISyntaxException e)
+        {
+            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotreadremote"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             return false;
         }
