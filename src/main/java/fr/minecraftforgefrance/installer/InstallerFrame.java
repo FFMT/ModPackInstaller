@@ -13,7 +13,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 
 import javax.imageio.ImageIO;
@@ -24,8 +23,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
-import com.google.common.base.Throwables;
 
 import argo.jdom.JsonRootNode;
 import fr.minecraftforgefrance.common.EnumOS;
@@ -60,33 +57,36 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             }
         }
 
-        BufferedImage image;
+        BufferedImage image = null;
         try
         {
             image = ImageIO.read(this.getClass().getResourceAsStream("/installer/logo.png"));
         }
-        catch(IOException e)
+        catch(Exception e)
         {
-            throw Throwables.propagate(e);
+
         }
 
         final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        ImageIcon icon = new ImageIcon(image);
-        JLabel logoLabel = new JLabel(icon);
-        logoLabel.setAlignmentX(CENTER_ALIGNMENT);
-        logoLabel.setAlignmentY(CENTER_ALIGNMENT);
-        if(image.getWidth() > dim.width || image.getHeight() + 10 > dim.height)
+        if(image != null)
         {
-            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.bigimage"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-            this.dispose();
-        }
-        else
-        {
-            logoLabel.setSize(image.getWidth(), image.getHeight());
-            panel.add(logoLabel);
+            ImageIcon icon = new ImageIcon(image);
+            JLabel logoLabel = new JLabel(icon);
+            logoLabel.setAlignmentX(CENTER_ALIGNMENT);
+            logoLabel.setAlignmentY(CENTER_ALIGNMENT);
+            if(image.getWidth() > dim.width || image.getHeight() + 10 > dim.height)
+            {
+                JOptionPane.showMessageDialog(null, LANG.getTranslation("err.bigimage"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                this.dispose();
+            }
+            else
+            {
+                logoLabel.setSize(image.getWidth(), image.getHeight());
+                panel.add(logoLabel);
+            }
         }
 
         JPanel buttonPanel = new JPanel();

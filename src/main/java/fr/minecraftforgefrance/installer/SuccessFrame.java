@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -53,13 +54,34 @@ public class SuccessFrame extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                try
-                {   
-                    Runtime.getRuntime().exec(EnumOS.getJavaExecutable() + " -jar " + Installer.frame.mcDir.getPath() + File.separator + "launcher.jar");
-                }
-                catch(Exception ex)
+                File launcher = new File(Installer.frame.mcDir.getPath(), "launcher.jar");
+                if(launcher.exists())
                 {
-                    ex.printStackTrace();
+                    try
+                    {
+                        Runtime.getRuntime().exec(EnumOS.getJavaExecutable() + " -jar " + Installer.frame.mcDir.getPath() + File.separator + "launcher.jar");
+                    }
+                    catch(IOException ex)
+                    {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else if(EnumOS.getPlatform() == EnumOS.WINDOWS)
+                {
+                    // fix for Minecraft installer on Windows
+                    try
+                    {
+                        Runtime.getRuntime().exec(EnumOS.getJavaExecutable() + " -jar " + "\"C:\\Program Files (x86)\\Minecraft\\game\\launcher.jar\"");
+                    }
+                    catch(IOException ex2)
+                    {
+                        ex2.printStackTrace();
+                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else
+                {
                     JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
                 }
                 SuccessFrame.this.dispose();
