@@ -26,6 +26,7 @@ err.mcdirmissing=The Minecraft dir is missing, please run the official Minecraft
 err.mcprofilemissing=Minecraft launcher profile not found, please run the official Minecraft launcher
 err.mcprofilecorrupted=The launcher profile file is corrupted. Please re-run the minecraft launcher to fix it!
 err.networkerror=Network error, please check your Internet connection
+err.noFile=There are no file to download !
 err.cannotdeletefile=Could not delete file
 err.cannotdownload=Could not download
 err.cannotwriteversion=There was a problem while writing the launcher version. Is it write protected?

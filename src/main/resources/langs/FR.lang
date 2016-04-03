@@ -26,6 +26,7 @@ err.mcdirmissing=Le dossier de Minecraft est introuvable, veuillez lancer le lau
 err.mcprofilemissing=Le profile du launcher officiel est introuvable, veuillez lancer le launcher officiel!
 err.mcprofilecorrupted=Le fichier du profil est corrompu. Veuillez relancer le launcher officiel pour le réparer!
 err.networkerror=Erreur réseau, veuillez vérifier votre connexion internet
+err.noFile=Il n'y a aucun fichier à télécharger !
 err.cannotdeletefile=Impossible de supprimer le fichier
 err.cannotdownload=Impossible de télécharger
 err.cannotwriteversion=Il y a eu un problème lors de l'écriture de la version du launcher. Les permissions en écriture sont-elles accordées?

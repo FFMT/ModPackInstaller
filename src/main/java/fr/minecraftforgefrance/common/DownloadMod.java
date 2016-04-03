@@ -1,8 +1,12 @@
 package fr.minecraftforgefrance.common;
 
+import static fr.minecraftforgefrance.common.Localization.LANG;
+
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import com.google.common.base.Charsets;
 
@@ -50,6 +54,7 @@ public class DownloadMod
         catch(Exception ex)
         {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.networkerror"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
         }
     }
 

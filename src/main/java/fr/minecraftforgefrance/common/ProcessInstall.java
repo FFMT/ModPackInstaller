@@ -131,7 +131,7 @@ public class ProcessInstall
         else
         {
             this.frame.dispose();
-            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.networkerror"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.noFile"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
             return;
         }
         this.downloadFiles();
