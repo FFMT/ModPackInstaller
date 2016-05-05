@@ -21,6 +21,8 @@ import fr.minecraftforgefrance.common.EnumOS;
 public class SuccessFrame extends JFrame
 {
     private static final long serialVersionUID = 1L;
+    private boolean launcherExist = false;
+    private File launcherFile = new File(Installer.frame.mcDir.getPath(), "launcher.jar");
 
     public SuccessFrame()
     {
@@ -48,14 +50,21 @@ public class SuccessFrame extends JFrame
             }
         });
         buttonPanel.add(exit);
+        
+        this.launcherExist = this.launcherFile.exists();
+        if(!this.launcherExist && EnumOS.getPlatform() == EnumOS.WINDOWS)
+        {
+            File launcherWithMsi = new File("C:\\Program Files (x86)\\Minecraft\\game\\launcher.jar");
+            this.launcherExist = launcherWithMsi.exists();
+        }
+        
         JButton runGame = new JButton(LANG.getTranslation("scr.btn.run"));
         runGame.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                File launcher = new File(Installer.frame.mcDir.getPath(), "launcher.jar");
-                if(launcher.exists())
+                if(SuccessFrame.this.launcherFile.exists())
                 {
                     try
                     {
@@ -80,14 +89,13 @@ public class SuccessFrame extends JFrame
                         JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
                     }
                 }
-                else
-                {
-                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-                }
                 SuccessFrame.this.dispose();
             }
         });
-        buttonPanel.add(runGame);
+        if(this.launcherExist)
+        {
+            buttonPanel.add(runGame);
+        }
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
         int x = (dim.width / 2) - (this.getSize().width / 2);
