@@ -3,14 +3,13 @@ package fr.minecraftforgefrance.installer;
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,7 +17,7 @@ import javax.swing.JPanel;
 
 import fr.minecraftforgefrance.common.EnumOS;
 
-public class SuccessFrame extends JFrame
+public class SuccessFrame extends JDialog
 {
     private static final long serialVersionUID = 1L;
     private boolean launcherExist = false;
@@ -26,12 +25,13 @@ public class SuccessFrame extends JFrame
 
     public SuccessFrame()
     {
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setTitle(LANG.getTranslation("misc.success"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
         this.setSize(300, 100);
         this.setLayout(new BorderLayout());
+        this.setModalityType(ModalityType.APPLICATION_MODAL);
+
         JPanel panel = new JPanel();
         JLabel label = new JLabel(LANG.getTranslation("installation.success"));
         label.setAlignmentX(CENTER_ALIGNMENT);
@@ -97,9 +97,7 @@ public class SuccessFrame extends JFrame
             buttonPanel.add(runGame);
         }
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-        int x = (dim.width / 2) - (this.getSize().width / 2);
-        int y = (dim.height / 2) - (this.getSize().height / 2);
-        this.setLocation(x, y);
+        
+        this.setLocationRelativeTo(null);
     }
 }

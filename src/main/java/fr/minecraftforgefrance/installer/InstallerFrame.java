@@ -43,6 +43,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
         this.setTitle(String.format(LANG.getTranslation("title.installer"), RemoteInfoReader.instance().getModPackDisplayName()));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
+
         if(RemoteInfoReader.instance().hasPreset())
         {
             try
@@ -132,7 +133,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                CreditFrame credit = new CreditFrame(dim);
+                CreditFrame credit = new CreditFrame(InstallerFrame.this);
                 credit.setVisible(true);
             }
         });
@@ -144,7 +145,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                OptionFrame credit = new OptionFrame(dim);
+                OptionFrame credit = new OptionFrame(InstallerFrame.this);
                 credit.setVisible(true);
             }
         });
@@ -187,10 +188,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             }
         });
         this.pack();
-
-        int x = (dim.width / 2) - (this.getSize().width / 2);
-        int y = (dim.height / 2) - (this.getSize().height / 2);
-        this.setLocation(x, y);
+        this.setLocationRelativeTo(null);
 
         addKeyListener(new KeyListener()
         {
