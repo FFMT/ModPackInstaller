@@ -3,13 +3,14 @@ package fr.minecraftforgefrance.installer;
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
 import java.awt.Desktop;
-import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,15 +18,18 @@ import javax.swing.JPanel;
 
 import fr.minecraftforgefrance.common.RemoteInfoReader;
 
-public class CreditFrame extends JFrame
+public class CreditFrame extends JDialog
 {
     private static final long serialVersionUID = 1L;
 
-    public CreditFrame(Dimension dim)
+    public CreditFrame(Frame parent)
     {
+    	super(parent);
         this.setTitle(LANG.getTranslation("title.credits"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
+        this.setModalityType(ModalityType.APPLICATION_MODAL);
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
@@ -69,8 +73,6 @@ public class CreditFrame extends JFrame
         panel.add(sponsorPanel);
         this.add(panel);
         this.pack();
-        int x = (dim.width / 2) - (this.getSize().width / 2);
-        int y = (dim.height / 2) - (this.getSize().height / 2);
-        this.setLocation(x, y);
+        this.setLocationRelativeTo(parent);
     }
 }

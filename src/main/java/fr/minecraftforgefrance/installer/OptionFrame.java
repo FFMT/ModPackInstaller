@@ -3,7 +3,7 @@ package fr.minecraftforgefrance.installer;
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -33,11 +33,13 @@ public class OptionFrame extends JDialog
     public JLabel infoLabel;
     private JTextField selectedDirText;
 
-    public OptionFrame(Dimension dim)
+    public OptionFrame(Frame parent)
     {
         this.setTitle(LANG.getTranslation("title.options"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
+        this.setModalityType(ModalityType.APPLICATION_MODAL);
+
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
@@ -175,9 +177,7 @@ public class OptionFrame extends JDialog
 
         this.add(mainPanel);
         this.pack();
-        int x = (dim.width / 2) - (this.getSize().width / 2);
-        int y = (dim.height / 2) - (this.getSize().height / 2);
-        this.setLocation(x, y);
+        this.setLocationRelativeTo(parent);
         this.updateMinecraftDir(EnumOS.getMinecraftDefaultDir());
     }
 
