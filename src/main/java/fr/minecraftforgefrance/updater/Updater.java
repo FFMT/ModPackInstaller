@@ -106,7 +106,7 @@ public class Updater implements IInstallRunner
             {
                 e.printStackTrace();
             }
-            ProcessInstall install = new ProcessInstall(checker, this, true, mcDir, null);
+            ProcessInstall install = new ProcessInstall(checker, this, mcDir, null);
             install.run();
         }
     }

@@ -99,7 +99,7 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             {
                 InstallerFrame.this.dispose();
                 FileChecker checker = new FileChecker(InstallerFrame.this.mcDir);
-                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, false, InstallerFrame.this.mcDir, InstallerFrame.this.preSet);
+                ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, InstallerFrame.this.mcDir, InstallerFrame.this.preSet);
                 install.run();
             }
         });

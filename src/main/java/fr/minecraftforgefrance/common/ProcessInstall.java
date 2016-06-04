@@ -62,16 +62,14 @@ public class ProcessInstall
 
     private final FileChecker fileChecker;
     private final IInstallRunner runner;
-    private final boolean update;
     private final String preset;
 
     private static final JsonFormatter JSON_FORMATTER = new PrettyJsonFormatter();
 
-    public ProcessInstall(FileChecker file, IInstallRunner runner, boolean update, File mcDir, String preset)
+    public ProcessInstall(FileChecker file, IInstallRunner runner, File mcDir, String preset)
     {
         this.fileChecker = file;
         this.runner = runner;
-        this.update = update;
         this.mcDir = mcDir;
         this.modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
         this.preset = preset;
@@ -416,15 +414,14 @@ public class ProcessInstall
         this.frame.setTitle(LANG.getTranslation("misc.finishing"));
         this.createOrUpdateProfile();
         this.writeModPackInfo();
-        if(!this.update)
-        {
-            this.addToProfileList();
-        }
-
+        this.addToProfileList();
         this.frame.dispose();
         this.runner.onFinish();
     }
 
+    /**
+     * create or update the file modpackName.json in the folder .minecraft/profile/modpackName
+     */
     private void createOrUpdateProfile()
     {
         String modpackName = RemoteInfoReader.instance().getModPackName();
@@ -449,18 +446,40 @@ public class ProcessInstall
         }
     }
 
-    public void addToProfileList()
+    /**
+     * determine if the profile exist and if it is valid in the file launcher_profiles.json
+     * @param profiles JsonRootNode of the file launcher_profiles.json
+     * @param modpackName name of the modpack
+     * @param displayName display name of the modpack
+     * @return true if the profile exist and is valid
+     */
+    private boolean isProfileValid(JsonRootNode profiles, String modpackName, String displayName)
+    {
+        if(profiles.isObjectNode("profiles", displayName))
+        {
+            if(profiles.isStringValue("profiles", displayName, "name") && profiles.getStringValue("profiles", displayName, "name").equals(displayName))
+            {
+                return profiles.getStringValue("profiles", displayName, "lastVersionId").equals(modpackName);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * add the profile in the file launcher_profiles.json
+     */
+    private void addToProfileList()
     {
         String modpackName = RemoteInfoReader.instance().getModPackName();
+        String displayName = RemoteInfoReader.instance().getModPackDisplayName();
         File launcherProfiles = new File(mcDir, "launcher_profiles.json");
+        JdomParser parser = new JdomParser();
+        JsonRootNode jsonProfileData;
         if(!launcherProfiles.exists())
         {
             JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcprofilemissing"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
             this.frame.dispose();
         }
-        JdomParser parser = new JdomParser();
-        JsonRootNode jsonProfileData;
-
         try
         {
             jsonProfileData = parser.parse(Files.newReader(launcherProfiles, Charsets.UTF_8));
@@ -475,34 +494,37 @@ public class ProcessInstall
             throw Throwables.propagate(e);
         }
 
-        JsonField[] fields = null;
-        if(RemoteInfoReader.instance().hasArgument())
+        if(!isProfileValid(jsonProfileData, modpackName, displayName))
         {
-            fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(RemoteInfoReader.instance().getModPackDisplayName())), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("javaArgs", JsonNodeFactories.string(RemoteInfoReader.instance().getArgument()))};
-        }
-        else
-        {
-            fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(RemoteInfoReader.instance().getModPackDisplayName())), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName))};
-        }
+            JsonField[] fields = null;
+            if(RemoteInfoReader.instance().hasArgument())
+            {
+                fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(displayName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("javaArgs", JsonNodeFactories.string(RemoteInfoReader.instance().getArgument()))};
+            }
+            else
+            {
+                fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(displayName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName))};
+            }
 
-        HashMap<JsonStringNode, JsonNode> profileCopy = Maps.newHashMap(jsonProfileData.getNode("profiles").getFields());
-        HashMap<JsonStringNode, JsonNode> rootCopy = Maps.newHashMap(jsonProfileData.getFields());
-        profileCopy.put(JsonNodeFactories.string(RemoteInfoReader.instance().getModPackDisplayName()), JsonNodeFactories.object(fields));
-        JsonRootNode profileJsonCopy = JsonNodeFactories.object(profileCopy);
+            HashMap<JsonStringNode, JsonNode> profileCopy = Maps.newHashMap(jsonProfileData.getNode("profiles").getFields());
+            HashMap<JsonStringNode, JsonNode> rootCopy = Maps.newHashMap(jsonProfileData.getFields());
+            profileCopy.put(JsonNodeFactories.string(displayName), JsonNodeFactories.object(fields));
+            JsonRootNode profileJsonCopy = JsonNodeFactories.object(profileCopy);
 
-        rootCopy.put(JsonNodeFactories.string("profiles"), profileJsonCopy);
+            rootCopy.put(JsonNodeFactories.string("profiles"), profileJsonCopy);
 
-        jsonProfileData = JsonNodeFactories.object(rootCopy);
+            jsonProfileData = JsonNodeFactories.object(rootCopy);
 
-        try
-        {
-            BufferedWriter newWriter = Files.newWriter(launcherProfiles, Charsets.UTF_8);
-            JSON_FORMATTER.format(jsonProfileData, newWriter);
-            newWriter.close();
-        }
-        catch(Exception e)
-        {
-            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotwriteprofile"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+            try
+            {
+                BufferedWriter newWriter = Files.newWriter(launcherProfiles, Charsets.UTF_8);
+                JSON_FORMATTER.format(jsonProfileData, newWriter);
+                newWriter.close();
+            }
+            catch(Exception e)
+            {
+                JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotwriteprofile"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
