@@ -90,7 +90,7 @@ public class RemoteInfoReader
 
     public ArrayList<String> getSyncDir()
     {
-        return Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split(this.data.getStringValue("install", "syncDir")));
+        return Lists.newArrayList(Splitter.on(',').trimResults().omitEmptyStrings().split(this.data.getStringValue("install", "syncDir")));
     }
 
     public String getSyncUrl()
