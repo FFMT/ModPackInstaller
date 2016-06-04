@@ -359,7 +359,7 @@ public class ProcessInstall
             }
         }
     }
-    
+
     public void downloadPreset(Thread thread)
     {
         this.frame.setTitle(LANG.getTranslation("title.preset"));
@@ -381,31 +381,34 @@ public class ProcessInstall
         for(String file : files)
         {
             File destFile = new File(modPackDir, file);
-            if(!destFile.getParentFile().exists())
+            if(!destFile.exists())
             {
-                destFile.getParentFile().mkdirs();
-            }
-            currentDownload.setText(file);
-            try
-            {
-                if(!DownloadUtils.downloadFile(new URL(RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file)), destFile, fileProgressBar, fullProgressBar, downloadSpeedLabel))
+                if(!destFile.getParentFile().exists())
                 {
-                    frame.dispose();
-                    thread.interrupt();
-                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    destFile.getParentFile().mkdirs();
                 }
-            }
-            catch(HeadlessException e)
-            {
-                e.printStackTrace();
-            }
-            catch(MalformedURLException e)
-            {
-                e.printStackTrace();
+                currentDownload.setText(file);
+                try
+                {
+                    if(!DownloadUtils.downloadFile(new URL(RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file)), destFile, fileProgressBar, fullProgressBar, downloadSpeedLabel))
+                    {
+                        frame.dispose();
+                        thread.interrupt();
+                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                catch(HeadlessException e)
+                {
+                    e.printStackTrace();
+                }
+                catch(MalformedURLException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
     }
-    
+
     public void finish()
     {
         this.fullProgressBar.setMaximum(100);
