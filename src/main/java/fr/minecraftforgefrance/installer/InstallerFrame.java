@@ -99,9 +99,9 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             public void actionPerformed(ActionEvent e)
             {
                 InstallerFrame.this.dispose();
-                FileChecker checker = new FileChecker(InstallerFrame.this.mcDir);
+                FileChecker checker = new FileChecker(mcDir);
                 ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, InstallerFrame.this.mcDir, InstallerFrame.this.preSet);
-                install.run();
+                install.createFrame();
             }
         });
         buttonPanel.add(install);

@@ -7,23 +7,22 @@ import java.io.File;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-import net.minecraft.launchwrapper.Launch;
-import argo.jdom.JdomParser;
-import argo.jdom.JsonRootNode;
-import argo.saj.InvalidSyntaxException;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 
+import argo.jdom.JdomParser;
+import argo.jdom.JsonRootNode;
+import argo.saj.InvalidSyntaxException;
 import fr.minecraftforgefrance.common.FileChecker;
 import fr.minecraftforgefrance.common.IInstallRunner;
 import fr.minecraftforgefrance.common.Localization;
 import fr.minecraftforgefrance.common.ProcessInstall;
 import fr.minecraftforgefrance.common.RemoteInfoReader;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+import net.minecraft.launchwrapper.Launch;
 
 public class Updater implements IInstallRunner
 {
@@ -107,7 +106,7 @@ public class Updater implements IInstallRunner
                 e.printStackTrace();
             }
             ProcessInstall install = new ProcessInstall(checker, this, mcDir, null);
-            install.run();
+            install.createFrame();
         }
     }
 

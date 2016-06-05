@@ -3,9 +3,8 @@ package fr.minecraftforgefrance.common;
 import static argo.jdom.JsonNodeBuilders.aStringBuilder;
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
-import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.HeadlessException;
-import java.awt.Toolkit;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -17,13 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTextArea;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -48,26 +41,23 @@ import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
 import argo.saj.InvalidSyntaxException;
 
-public class ProcessInstall
+public class ProcessInstall implements Runnable
 {
-    private JFrame frame;
-    private JProgressBar fileProgressBar;
-    private JProgressBar fullProgressBar;
-    private JPanel panel;
-    private JLabel downloadSpeedLabel;
-    private JLabel currentDownload;
+    private final InstallFrame installFrame;
+    private List<LibEntry> missingLibs = new ArrayList<LibEntry>();
 
-    private final File mcDir;
-    private final File modPackDir;
+    private static final JsonFormatter JSON_FORMATTER = new PrettyJsonFormatter();
 
     private final FileChecker fileChecker;
     private final IInstallRunner runner;
     private final String preset;
 
-    private static final JsonFormatter JSON_FORMATTER = new PrettyJsonFormatter();
+    public final File mcDir;
+    public final File modPackDir;
 
     public ProcessInstall(FileChecker file, IInstallRunner runner, File mcDir, String preset)
     {
+        this.installFrame = new InstallFrame(this);
         this.fileChecker = file;
         this.runner = runner;
         this.mcDir = mcDir;
@@ -75,181 +65,92 @@ public class ProcessInstall
         this.preset = preset;
     }
 
+    public void createFrame()
+    {
+        this.installFrame.run();
+    }
+
+    @Override
     public void run()
     {
-        this.frame = new JFrame();
-        this.frame.setTitle(LANG.getTranslation("proc.downloadingmods"));
-        this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.frame.setResizable(false);
-        this.frame.setSize(500, 100);
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (dim.width / 2) - (frame.getSize().width / 2);
-        int y = (dim.height / 2) - (frame.getSize().height / 2);
-        this.frame.setLocation(x, y);
-
-        this.fileProgressBar = new JProgressBar(0, 10);
-        this.fileProgressBar.setValue(0);
-        this.fileProgressBar.setStringPainted(true);
-
-        this.fullProgressBar = new JProgressBar(0, 10);
-        this.fullProgressBar.setValue(0);
-        this.fullProgressBar.setStringPainted(true);
-
-        this.currentDownload = new JLabel(" ");
-        this.downloadSpeedLabel = new JLabel(" ");
-
-        this.panel = new JPanel();
-        this.panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        this.panel.add(currentDownload);
-        this.panel.add(fileProgressBar);
-        this.panel.add(fullProgressBar);
-        this.panel.add(downloadSpeedLabel);
-
-        if(RemoteInfoReader.instance().hasChangeLog())
-        {
-            JTextArea area = new JTextArea();
-            area.setBounds(4, 2, 492, 150);
-            this.getChangeLog(area);
-            if(!area.getText().isEmpty())
-            {
-                this.frame.setSize(500, 250);
-                this.panel.add(area);
-            }
-        }
-
-        this.frame.setContentPane(panel);
-
-        this.fullProgressBar.setMaximum(this.getTotalDownloadSize());
-
-        this.frame.setVisible(true);
         if(!this.fileChecker.remoteList.isEmpty())
         {
             this.deleteDeprecated();
         }
         else
         {
-            this.frame.dispose();
+            this.installFrame.dispose();
             JOptionPane.showMessageDialog(null, LANG.getTranslation("err.noFile"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
             return;
         }
-        this.downloadFiles();
-    }
 
-    private void getChangeLog(JTextArea area)
-    {
-        String currentVersion = null;
-        File modpackInfo = new File(modPackDir, RemoteInfoReader.instance().getModPackName() + ".json");
-        if(modpackInfo.exists())
+        final int totalSize = this.getTotalDownloadSize();
+        EventQueue.invokeLater(new Runnable()
         {
-            JdomParser jsonParser = new JdomParser();
-            try
+            public void run()
             {
-                JsonRootNode jsonProfileData = jsonParser.parse(Files.newReader(modpackInfo, Charsets.UTF_8));
-                currentVersion = jsonProfileData.getStringValue("currentVersion");
+                ProcessInstall.this.installFrame.fullProgressBar.setMaximum(totalSize);
+                ProcessInstall.this.installFrame.fullProgressBar.setIndeterminate(false);
             }
-            catch(Exception e)
-            {
+        });
 
-            }
-        }
-        if(RemoteInfoReader.instance().getChangeLog() != null)
+        this.downloadMod();
+        if(this.runner.shouldDownloadLib())
         {
-            for(JsonField field : RemoteInfoReader.instance().getChangeLog().getFieldList())
-            {
-                if(field.getName().getText().equals(currentVersion))
-                {
-                    break;
-                }
-                area.append(field.getName().getText() + ":\n");
-                String[] changes = field.getValue().getText().split("\n");
-                for(String change : changes)
-                {
-                    area.append("- " + change + "\n");
-                }
-            }
+            this.downloadLib();
         }
-    }
-
-    private int getTotalDownloadSize()
-    {
-        int size = 0;
-        for(FileEntry entry : this.fileChecker.missingList)
+        if(this.preset != null)
         {
-            size += entry.getSize();
+            this.downloadPreset();
         }
-        return size;
+        this.finish();
     }
 
     public void deleteDeprecated()
     {
         for(FileEntry entry : this.fileChecker.outdatedList)
         {
-            File f = new File(modPackDir, entry.getPath());
+            File f = new File(this.modPackDir, entry.getPath());
             if(f.delete())
             {
                 System.out.println(String.format(LANG.getTranslation("file.removed.md5.success"), f.getPath(), entry.getMd5()));
             }
             else
             {
-                frame.dispose();
+                this.installFrame.dispose();
                 JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdeletefile") + " : " + f.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    public void downloadFiles()
+    /**
+     * Check for missing libraries
+     * @return the sum of all missing libs's size
+     */
+    private int checkMissingLibs()
     {
-        new Thread()
+        File librariesDir = new File(this.mcDir, "libraries");
+        final List<JsonNode> libraries = RemoteInfoReader.instance().getProfileInfo().getArrayNode("libraries");
+        EventQueue.invokeLater(new Runnable()
         {
-            @Override
             public void run()
             {
-                downloadMod(this);
-                if(ProcessInstall.this.runner.shouldDownloadLib())
-                {
-                    downloadLib(this);
-                }
-                if(ProcessInstall.this.preset != null)
-                {
-                    downloadPreset(this);
-                }
-                finish();
+                ProcessInstall.this.installFrame.fileProgressBar.setMaximum(libraries.size());
+                ProcessInstall.this.installFrame.fileProgressBar.setIndeterminate(false);
             }
-        }.start();
-    }
-
-    public void downloadMod(Thread thread)
-    {
-        for(FileEntry entry : fileChecker.missingList)
-        {
-            File f = new File(modPackDir, entry.getPath());
-            if(f.getParentFile() != null && !f.getParentFile().isDirectory())
-            {
-                f.getParentFile().mkdirs();
-            }
-            currentDownload.setText(entry.getPath());
-            System.out.println(String.format(LANG.getTranslation("proc.downloadingfile"), entry.getUrl().toString(), f.getPath(), entry.getMd5()));
-            if(!DownloadUtils.downloadFile(entry.getUrl(), f, fileProgressBar, fullProgressBar, downloadSpeedLabel))
-            {
-                frame.dispose();
-                thread.interrupt();
-                JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    public void downloadLib(Thread thread)
-    {
-        this.frame.setTitle(LANG.getTranslation("title.libs"));
-        this.fullProgressBar.setValue(0);
-
-        File librariesDir = new File(mcDir, "libraries");
-        List<JsonNode> libraries = RemoteInfoReader.instance().getProfileInfo().getArrayNode("libraries");
-
-        List<LibEntry> libEntryList = new ArrayList<LibEntry>();
+        });
         int max = 0;
-        for(JsonNode library : libraries)
+        for(final JsonNode library : libraries)
         {
+            ProcessInstall.this.changeCurrentDownloadText(library.getStringValue("name"));
+            EventQueue.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    ProcessInstall.this.installFrame.fileProgressBar.setValue(ProcessInstall.this.installFrame.fileProgressBar.getValue() + 1);
+                }
+            });
+
             List<String> checksums = null;
             String libName = library.getStringValue("name");
             if(library.isBooleanValue("required") && library.getBooleanValue("required"))
@@ -301,7 +202,7 @@ public class ProcessInstall
                     URLConnection connection = url.openConnection();
                     int fileLength = connection.getContentLength();
                     max += fileLength;
-                    libEntryList.add(new LibEntry(libURL, libName, libPath, pack, fileLength, xz));
+                    missingLibs.add(new LibEntry(libURL, libName, libPath, pack, fileLength, xz));
                 }
                 catch(IOException e)
                 {
@@ -309,42 +210,77 @@ public class ProcessInstall
                 }
             }
         }
+        return max;
+    }
 
-        this.fullProgressBar.setMaximum(max);
-
-        for(LibEntry entry : libEntryList)
+    /**
+     * Get the sum of all files's size to download
+     * @return the size
+     */
+    private int getTotalDownloadSize()
+    {
+        int size = 0;
+        for(FileEntry entry : this.fileChecker.missingList)
         {
-            currentDownload.setText(String.format(LANG.getTranslation("proc.downloadinglib"), entry.getName()));
+            size += entry.getSize();
+        }
+        if(this.runner.shouldDownloadLib())
+        {
+            size += this.checkMissingLibs();
+        }
+        return size;
+    }
+
+    public void downloadMod()
+    {
+        this.installFrame.setTitle(LANG.getTranslation("proc.downloadingmods"));
+
+        for(FileEntry entry : this.fileChecker.missingList)
+        {
+            File f = new File(this.modPackDir, entry.getPath());
+            if(f.getParentFile() != null && !f.getParentFile().isDirectory())
+            {
+                f.getParentFile().mkdirs();
+            }
+            this.changeCurrentDownloadText(entry.getPath());
+            System.out.println(String.format(LANG.getTranslation("proc.downloadingfile"), entry.getUrl().toString(), f.getPath(), entry.getMd5()));
+            if(!DownloadUtils.downloadFile(entry.getUrl(), f, this.installFrame))
+            {
+                this.installFrame.dispose();
+                JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public void downloadLib()
+    {
+        this.installFrame.setTitle(LANG.getTranslation("title.libs"));
+
+        for(LibEntry entry : this.missingLibs)
+        {
+            this.changeCurrentDownloadText(String.format(LANG.getTranslation("proc.downloadinglib"), entry.getName()));
             try
             {
-                if(entry.isXZ())
+                if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getPackDest(), this.installFrame))
                 {
-                    if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getPackDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
-                    {
-                        thread.interrupt();
-                        frame.dispose();
-                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                    {
-                        try
-                        {
-                            currentDownload.setText(LANG.getTranslation("proc.unpackingfile") + " : " + entry.getPackDest().toString());
-                            DownloadUtils.unpackLibrary(entry.getDest(), Files.toByteArray(entry.getPackDest()));
-                            currentDownload.setText(String.format(LANG.getTranslation("file.unpacked.success"), entry.getPackDest().toString()));
-                            entry.getPackDest().delete();
-                        }
-                        catch(Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
+                    this.installFrame.dispose();
+                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    Thread.currentThread().interrupt();
                 }
-                else if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getDest(), fileProgressBar, fullProgressBar, downloadSpeedLabel))
+                else if(entry.isXZ())
                 {
-                    thread.interrupt();
-                    frame.dispose();
-                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, "Error", JOptionPane.ERROR_MESSAGE);
+                    try
+                    {
+                        this.changeCurrentDownloadText(LANG.getTranslation("proc.unpackingfile") + " : " + entry.getPackDest().toString());
+                        DownloadUtils.unpackLibrary(entry.getDest(), Files.toByteArray(entry.getPackDest()));
+                        this.changeCurrentDownloadText(String.format(LANG.getTranslation("file.unpacked.success"), entry.getPackDest().toString()));
+                        entry.getPackDest().delete();
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
             }
             catch(HeadlessException e)
@@ -358,9 +294,9 @@ public class ProcessInstall
         }
     }
 
-    public void downloadPreset(Thread thread)
+    public void downloadPreset()
     {
-        this.frame.setTitle(LANG.getTranslation("title.preset"));
+        this.installFrame.setTitle(LANG.getTranslation("title.preset"));
         final JsonRootNode data = RemoteInfoReader.instance().getPreset();
         final JsonNodeSelector<JsonNode, List<JsonNode>> preSet = JsonNodeSelectors.anArrayNode(this.preset);
         final JsonNodeSelector<JsonNode, String> preSetName = JsonNodeSelectors.aStringNode();
@@ -378,21 +314,21 @@ public class ProcessInstall
         };
         for(String file : files)
         {
-            File destFile = new File(modPackDir, file);
+            File destFile = new File(this.modPackDir, file);
             if(!destFile.exists())
             {
                 if(!destFile.getParentFile().exists())
                 {
                     destFile.getParentFile().mkdirs();
                 }
-                currentDownload.setText(file);
+                this.changeCurrentDownloadText(file);
                 try
                 {
-                    if(!DownloadUtils.downloadFile(new URL(RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file)), destFile, fileProgressBar, fullProgressBar, downloadSpeedLabel))
+                    if(!DownloadUtils.downloadFile(new URL(RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file)), destFile, this.installFrame))
                     {
-                        frame.dispose();
-                        thread.interrupt();
+                        this.installFrame.dispose();
                         JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                        Thread.currentThread().interrupt();
                     }
                 }
                 catch(HeadlessException e)
@@ -407,15 +343,32 @@ public class ProcessInstall
         }
     }
 
+    private void changeCurrentDownloadText(final String text)
+    {
+        EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                ProcessInstall.this.installFrame.currentDownload.setText(text);
+            }
+        });
+    }
+
     public void finish()
     {
-        this.fullProgressBar.setMaximum(100);
-        this.fullProgressBar.setValue(100);
-        this.frame.setTitle(LANG.getTranslation("misc.finishing"));
+        EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                ProcessInstall.this.installFrame.fullProgressBar.setMaximum(100);
+                ProcessInstall.this.installFrame.fullProgressBar.setValue(100);
+            }
+        });
+        this.installFrame.setTitle(LANG.getTranslation("misc.finishing"));
         this.createOrUpdateProfile();
         this.writeModPackInfo();
         this.addToProfileList();
-        this.frame.dispose();
+        this.installFrame.dispose();
         this.runner.onFinish();
     }
 
@@ -425,7 +378,7 @@ public class ProcessInstall
     private void createOrUpdateProfile()
     {
         String modpackName = RemoteInfoReader.instance().getModPackName();
-        File versionRootDir = new File(mcDir, "versions");
+        File versionRootDir = new File(this.mcDir, "versions");
         File modpackVersionDir = new File(versionRootDir, modpackName);
         if(!modpackVersionDir.exists())
         {
@@ -472,13 +425,14 @@ public class ProcessInstall
     {
         String modpackName = RemoteInfoReader.instance().getModPackName();
         String displayName = RemoteInfoReader.instance().getModPackDisplayName();
-        File launcherProfiles = new File(mcDir, "launcher_profiles.json");
+        File launcherProfiles = new File(this.mcDir, "launcher_profiles.json");
         JdomParser parser = new JdomParser();
         JsonRootNode jsonProfileData;
         if(!launcherProfiles.exists())
         {
             JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcprofilemissing"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-            this.frame.dispose();
+            this.installFrame.dispose();
+            return;
         }
         try
         {

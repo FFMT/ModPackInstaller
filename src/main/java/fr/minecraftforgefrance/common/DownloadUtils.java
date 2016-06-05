@@ -2,6 +2,7 @@ package fr.minecraftforgefrance.common;
 
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
+import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,22 +23,79 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
+import javax.swing.JOptionPane;
 
 import org.tukaani.xz.XZInputStream;
 
+import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+
+import argo.jdom.JdomParser;
+import argo.jdom.JsonNode;
+import argo.jdom.JsonRootNode;
 
 public class DownloadUtils
 {
     public static final String LIBRARIES_URL = "https://libraries.minecraft.net/";
     public static final String PACK_NAME = ".pack.xz";
 
-    public static boolean downloadFile(final URL url, final File dest, final JProgressBar bar, final JProgressBar fullBar, JLabel speedLabel)
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat();
     {
-        bar.setIndeterminate(true);
+        DECIMAL_FORMAT.setMaximumFractionDigits(2);
+    }
+
+    /**
+     * Fill the list of all files and the list of directory by reading the remote json file
+     */
+    public static void readRemoteList(List<FileEntry> files, List<String> dirs)
+    {
+        try
+        {
+            URL resourceUrl = new URL(RemoteInfoReader.instance().getSyncUrl());
+            JdomParser parser = new JdomParser();
+            JsonRootNode data = parser.parse(new InputStreamReader(resourceUrl.openStream(), Charsets.UTF_8));
+
+            for(int i = 0; i < data.getElements().size(); i++)
+            {
+                JsonNode node = data.getElements().get(i);
+                String key = node.getStringValue("name");
+                long size = Long.parseLong(node.getStringValue("size"));
+                String md5 = node.getStringValue("md5");
+
+                if(size > 0L)
+                {
+                    String link = RemoteInfoReader.instance().getSyncUrl() + DownloadUtils.escapeURIPathParam(key);
+                    files.add(new FileEntry(new URL(link), md5, key, size));
+                }
+                else if(RemoteInfoReader.instance().enableSubFolder())
+                {
+                    // add all folders if sub folder is enabled
+                    dirs.add(key.substring(0, key.length() - 1));
+                }
+                else if(key.split("/").length == 1)
+                {
+                    // only add the folder if it's in modpack root folder
+                    dirs.add(key.substring(0, key.length() - 1));
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.networkerror"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static boolean downloadFile(final URL url, final File dest, final InstallFrame installFrame)
+    {
+        EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                installFrame.fileProgressBar.setIndeterminate(true);
+            }
+        });
 
         FileOutputStream fos = null;
         BufferedReader reader = null;
@@ -46,8 +104,17 @@ public class DownloadUtils
         {
             URLConnection connection = url.openConnection();
 
-            int fileLength = connection.getContentLength();
-            bar.setMaximum(fileLength);
+            final int fileLength = connection.getContentLength();
+
+            EventQueue.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    installFrame.fileProgressBar.setMaximum(fileLength);
+                    installFrame.fileProgressBar.setValue(0);
+                    installFrame.fileProgressBar.setIndeterminate(false);
+                }
+            });
 
             InputStream in = connection.getInputStream();
             reader = new BufferedReader(new InputStreamReader(in));
@@ -57,31 +124,27 @@ public class DownloadUtils
             int downloadedAmount = 0;
             byte[] buff = new byte[1024];
 
-            bar.setValue(0);
-            bar.setIndeterminate(false);
-
-            int n;
-            while((n = in.read(buff)) != -1)
+            int progress = 0;
+            while((progress = in.read(buff)) != -1)
             {
-                fos.write(buff, 0, n);
-                bar.setValue(bar.getValue() + n);
-                fullBar.setValue(fullBar.getValue() + n);
-                downloadedAmount += n;
+                fos.write(buff, 0, progress);
+                addProgress(installFrame, progress);
+                downloadedAmount += progress;
                 long timeLapse = System.currentTimeMillis() - downloadStartTime;
-                if(timeLapse >= 1000L)
+                if(timeLapse >= 250L)
                 {
-                    float downloadSpeed = downloadedAmount / (float)timeLapse;
+                    final float downloadSpeed = downloadedAmount / (float)timeLapse;
+
                     downloadedAmount = 0;
-                    downloadStartTime += 1000L;
-                    DecimalFormat df = new DecimalFormat();
-                    df.setMaximumFractionDigits(2);
-                    if(downloadSpeed > 1000.0F)
+                    downloadStartTime += 250L;
+                    if(downloadSpeed > 1024F)
                     {
-                        speedLabel.setText(LANG.getTranslation("misc.speed") + " : " + String.valueOf(df.format(downloadSpeed / 1024F)) + " mo/s");
+                        changeDownloadSpeed(installFrame, String.format(LANG.getTranslation("misc.speed.mo"), String.valueOf(DECIMAL_FORMAT.format(downloadSpeed / 1024F))));
+
                     }
                     else
                     {
-                        speedLabel.setText(LANG.getTranslation("misc.speed") + " : " + String.valueOf(df.format(downloadSpeed)) + " ko/s");
+                        changeDownloadSpeed(installFrame, String.format(LANG.getTranslation("misc.speed.ko"), String.valueOf(DECIMAL_FORMAT.format(downloadSpeed))));
                     }
                 }
             }
@@ -113,6 +176,29 @@ public class DownloadUtils
             }
         }
         return true;
+    }
+
+    private static void addProgress(final InstallFrame installFrame, final int progress)
+    {
+        EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                installFrame.fileProgressBar.setValue(installFrame.fileProgressBar.getValue() + progress);
+                installFrame.fullProgressBar.setValue(installFrame.fullProgressBar.getValue() + progress);
+            }
+        });
+    }
+
+    private static void changeDownloadSpeed(final InstallFrame installFrame, final String text)
+    {
+        EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                installFrame.downloadSpeedLabel.setText(text);
+            }
+        });
     }
 
     public static boolean checksumValid(File libPath, List<String> checksums)
@@ -256,7 +342,7 @@ public class DownloadUtils
         jos.close();
         jarBytes.close();
     }
-    
+
     public static String escapeURIPathParam(String input)
     {
         StringBuilder resultStr = new StringBuilder();

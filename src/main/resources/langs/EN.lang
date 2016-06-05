@@ -58,6 +58,7 @@ proc.downloadingfile=Downloading file %1$s to %2$s (its md5 is %3$s)
 proc.downloadingmods=Downloading mods and config files...
 proc.checkingchecksum=Checking "$p" internal checksums
 proc.startingupdater=Starting the Updater...
+proc.verifyfiles=Checking files ...
 
 
 
@@ -98,7 +99,8 @@ option.preset=Preset :
 #   MISCELLANEOUS   #
 #####################
 misc.finishing=Finishing...
-misc.speed=Speed
+misc.speed.ko=Speed : %s ko/s
+misc.speed.mo=Speed : %s mo/s
 misc.missing=Missing
 misc.failed=Failed
 misc.error=Error

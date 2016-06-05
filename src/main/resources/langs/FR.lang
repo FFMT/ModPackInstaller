@@ -58,6 +58,7 @@ proc.downloadingfile=Téléchargement du fichier %1$s vers %2$s (MD : %3$s)
 proc.downloadingmods=Téléchargement des mods et des fichiers de configuration...
 proc.checkingchecksum=Vérification des signatures internes "$p"
 proc.startingupdater=Démarrage de l'utilitaire de mise à jour..
+proc.verifyfiles=Vérification des fichiers ...
 
 
 
@@ -97,7 +98,8 @@ option.preset=Préconfiguration :
 #   DIVERS   #
 ##############
 misc.finishing=Finitions en cours...
-misc.speed=Vitesse
+misc.speed.ko=Vitesse : %s ko/s
+misc.speed.mo=Vitesse : %s mo/s
 misc.missing=Manquant
 misc.failed=Échoué
 misc.error=Erreur

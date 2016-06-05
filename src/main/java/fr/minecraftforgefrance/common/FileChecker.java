@@ -33,7 +33,7 @@ public class FileChecker
     {
         this.mcDir = mcDir;
         this.modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
-        DownloadMod.instance().getRemoteList(this.remoteList, this.checkDir);
+        DownloadUtils.readRemoteList(this.remoteList, this.checkDir);
         this.getLocalFile();
         this.compare();
     }
