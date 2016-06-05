@@ -17,6 +17,7 @@ import argo.saj.InvalidSyntaxException;
 import fr.minecraftforgefrance.common.FileChecker;
 import fr.minecraftforgefrance.common.IInstallRunner;
 import fr.minecraftforgefrance.common.Localization;
+import fr.minecraftforgefrance.common.Logger;
 import fr.minecraftforgefrance.common.ProcessInstall;
 import fr.minecraftforgefrance.common.RemoteInfoReader;
 import joptsimple.OptionParser;
@@ -38,7 +39,7 @@ public class Updater implements IInstallRunner
     public Updater(String[] args)
     {
         long start = System.currentTimeMillis();
-        System.out.println("Starting updater !");
+        Logger.info("Starting updater !");
         final OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         final OptionSpec<File> gameDirOption = parser.accepts("gameDir", "The game directory").withRequiredArg().ofType(File.class);
@@ -90,9 +91,7 @@ public class Updater implements IInstallRunner
         FileChecker checker = new FileChecker(mcDir);
         if(!shouldUpdate(jsonProfileData.getStringValue("forge"), checker))
         {
-            System.out.println(LANG.getTranslation("no.update.found"));
-            long end = System.currentTimeMillis();
-            System.out.println(String.format(LANG.getTranslation("update.checked.in"), (end - start)));
+            Logger.info("No update found, launching Minecraft !");
             runMinecraft(args);
         }
         else
@@ -108,6 +107,9 @@ public class Updater implements IInstallRunner
             ProcessInstall install = new ProcessInstall(checker, this, mcDir, null);
             install.createFrame();
         }
+        long end = System.currentTimeMillis();
+        Logger.info(String.format("Update checked in %d ms", (end - start)));
+
     }
 
     public boolean shouldUpdate(String forgeVersion, FileChecker checker)
@@ -126,6 +128,7 @@ public class Updater implements IInstallRunner
 
     public void runMinecraft(String[] args)
     {
+        Logger.info("Lauching Minecraft ...");
         Launch.main(args);
     }
 

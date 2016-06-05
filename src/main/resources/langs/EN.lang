@@ -19,9 +19,6 @@
 ###############################
 # Errors
 err.invalidurl=Invalid URL : %s
-err.checksumvalidation=Failed checksums.sha1 validation!
-err.checksumnotfound=checksums.sha1 was not found, validation failed
-err.missingsignature=Unpacking failed, missing signature
 err.mcdirmissing=The Minecraft dir is missing, please run the official Minecraft launcher
 err.mcprofilemissing=Minecraft launcher profile not found, please run the official Minecraft launcher
 err.mcprofilecorrupted=The launcher profile file is corrupted. Please re-run the minecraft launcher to fix it!
@@ -42,21 +39,13 @@ err.runminecraft=can't run the game, run it manually
 
 # Tasks done
 file.unpacked.success=Successfully unpacked %s
-file.removed.md5.success=%1$s was removed. Its md5 was : %2$s
-file.checksumvalidation.success=Successfully validated checksums.sha1
-jar.validated.success=Jar contents validated successfully
 installation.success=Installation finished !
-no.update.found=No update found, launching Minecraft !
-update.checked.in=Update checked in %d ms
 update.finished.success=Update finished successfully, please restart the game !
 
 # Processes running
 proc.unpackingfile=Unpacking packed file
 proc.downloadinglib=Downloading library %s
-proc.consideringlib=Considering library %s
-proc.downloadingfile=Downloading file %1$s to %2$s (its md5 is %3$s)
 proc.downloadingmods=Downloading mods and config files...
-proc.checkingchecksum=Checking "$p" internal checksums
 proc.startingupdater=Starting the Updater...
 proc.verifyfiles=Checking files ...
 

@@ -222,7 +222,7 @@ public class DownloadUtils
 
     public static boolean validateJar(File libPath, byte[] data, List<String> checksums) throws IOException
     {
-        System.out.println(LANG.getTranslation("proc.checkingchecksum").replace("$p", libPath.getAbsolutePath()));
+        Logger.info(String.format("Checking %s internal checksums", libPath.getAbsolutePath()));
 
         HashMap<String, String> files = new HashMap<String, String>();
         String[] hashes = null;
@@ -250,11 +250,11 @@ public class DownloadUtils
             boolean failed = !checksums.contains(files.get("checksums.sha1"));
             if(failed)
             {
-                System.err.println(LANG.getTranslation("err.checksumvalidation"));
+                System.err.println("Failed checksums.sha1 validation!");
             }
             else
             {
-                System.out.println(LANG.getTranslation("file.checksumvalidation.success"));
+                Logger.info("Successfully validated checksums.sha1");
                 for(String hash : hashes)
                 {
                     if(hash.trim().equals("") || !hash.contains(" "))
@@ -279,14 +279,14 @@ public class DownloadUtils
 
             if(!failed)
             {
-                System.out.println(LANG.getTranslation("jar.validated.success"));
+                Logger.info("Jar contents validated successfully");
             }
 
             return !failed;
         }
         else
         {
-            System.out.println(LANG.getTranslation("err.checksumnotfound"));
+            Logger.info("checksums.sha1 was not found, validation failed");
             return false; // Missing checksums
         }
     }
@@ -322,7 +322,7 @@ public class DownloadUtils
         String end = new String(decompressed, decompressed.length - 4, 4);
         if(!end.equals("SIGN"))
         {
-            System.err.println(LANG.getTranslation("err.missingsignature") + " : " + end);
+            System.err.println("Unpacking failed, missing signature : " + end);
             return;
         }
 

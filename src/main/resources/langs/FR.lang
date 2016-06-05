@@ -19,9 +19,6 @@
 ########################################
 # Erreurs
 err.invalidurl=URL invalide : %s
-err.checksumvalidation=Échec de la vérification du checksums.sha1
-err.checksumnotfound=checksums.sha1 introuvable, la validation a échoué!
-err.missingsignature=Décompression échouée, signature manquante
 err.mcdirmissing=Le dossier de Minecraft est introuvable, veuillez lancer le launcher officiel!
 err.mcprofilemissing=Le profile du launcher officiel est introuvable, veuillez lancer le launcher officiel!
 err.mcprofilecorrupted=Le fichier du profil est corrompu. Veuillez relancer le launcher officiel pour le réparer!
@@ -42,21 +39,14 @@ err.runminecraft=Impossible de lancer Minecraft, lancez-le manuellement
 
 # Tâches effectuées
 file.unpacked.success=%s à été décompressé
-file.removed.md5.success=%1$s a été supprimé. Son MD5 était %2$s
-file.checksumvalidation.success=checksums.sha1 correctement validé
 jar.validated.success=Contenu du .jar vérifié avec succès
 installation.success=Installation terminée !
-no.update.found=Aucune mise à jour trouvée, lancement de Minecraft !
-update.checked.in=Présence de mise à jour vérifiée en %d ms
 update.finished.success=Mise à jour terminée avec succès, veuillez relancer Minecraft !
 
 # Processus
 proc.unpackingfile=Décompression du fichier
 proc.downloadinglib=Téléchargement de la bibliothèque %s
-proc.consideringlib=Examination de la bibliothèque %s
-proc.downloadingfile=Téléchargement du fichier %1$s vers %2$s (MD : %3$s)
 proc.downloadingmods=Téléchargement des mods et des fichiers de configuration...
-proc.checkingchecksum=Vérification des signatures internes "$p"
 proc.startingupdater=Démarrage de l'utilitaire de mise à jour..
 proc.verifyfiles=Vérification des fichiers ...
 

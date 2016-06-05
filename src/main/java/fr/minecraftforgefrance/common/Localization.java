@@ -10,6 +10,11 @@ public class Localization
 
     public static void init()
     {
+        if(!Logger.DEBUG)
+        {
+            LANG.mute();
+        }
+
         try
         {
             LANG.loadTranslationsFromFile(Locale.FRENCH, Localization.class.getResourceAsStream("/langs/FR.lang"));

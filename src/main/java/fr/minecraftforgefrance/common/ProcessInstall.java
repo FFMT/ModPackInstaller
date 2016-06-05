@@ -113,7 +113,7 @@ public class ProcessInstall implements Runnable
             File f = new File(this.modPackDir, entry.getPath());
             if(f.delete())
             {
-                System.out.println(String.format(LANG.getTranslation("file.removed.md5.success"), f.getPath(), entry.getMd5()));
+                Logger.info(String.format("%1$s was removed. Its md5 was : %2$s", f.getPath(), entry.getMd5()));
             }
             else
             {
@@ -166,7 +166,7 @@ public class ProcessInstall implements Runnable
                     }));
                 }
 
-                System.out.println(String.format(LANG.getTranslation("proc.consideringlib"), libName));
+                Logger.info(String.format("Considering library %s", libName));
                 String[] nameparts = Iterables.toArray(Splitter.on(':').split(libName), String.class);
                 nameparts[0] = nameparts[0].replace('.', '/');
                 String jarName = nameparts[1] + '-' + nameparts[2] + ".jar";
@@ -243,7 +243,7 @@ public class ProcessInstall implements Runnable
                 f.getParentFile().mkdirs();
             }
             this.changeCurrentDownloadText(entry.getPath());
-            System.out.println(String.format(LANG.getTranslation("proc.downloadingfile"), entry.getUrl().toString(), f.getPath(), entry.getMd5()));
+            Logger.info(String.format("Downloading file %1$s to %2$s (its md5 is %3$s)", entry.getUrl().toString(), f.getPath(), entry.getMd5()));
             if(!DownloadUtils.downloadFile(entry.getUrl(), f, this.installFrame))
             {
                 this.installFrame.dispose();
