@@ -33,41 +33,42 @@ public class FileChecker
     {
         this.mcDir = mcDir;
         this.modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
-        DownloadMod.instance().getRemoteList(remoteList, checkDir);
+        DownloadMod.instance().getRemoteList(this.remoteList, this.checkDir);
         this.getLocalFile();
         this.compare();
     }
 
     private void getLocalFile()
     {
-        if(!mcDir.exists() || !mcDir.isDirectory())
+        if(!this.mcDir.exists() || !this.mcDir.isDirectory())
         {
             JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcdirmissing"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if(!modPackDir.exists())
+        if(!this.modPackDir.isDirectory())
         {
-            modPackDir.mkdirs();
-            return;
+            this.modPackDir.delete();
         }
-        if(!modPackDir.isDirectory())
+
+        if(!this.modPackDir.exists())
         {
-            modPackDir.delete();
-            modPackDir.mkdirs();
+            this.modPackDir.mkdirs();
+            return; // no need to check files as the folder is empty
         }
+
         for(String dirName : this.checkDir)
         {
-            File dir = new File(modPackDir, dirName);
+            File dir = new File(this.modPackDir, dirName);
             if(dir.exists() && dir.isDirectory())
             {
                 if(RemoteInfoReader.instance().getSyncDir().contains(dirName))
                 {
-                    this.recursifAdd(localList, syncList, dir, modPackDir.getAbsolutePath(), true);
+                    this.addFiles(this.localList, this.syncList, dir, this.modPackDir.getAbsolutePath(), true);
                 }
                 else
                 {
-                    this.recursifAdd(localList, syncList, dir, modPackDir.getAbsolutePath(), false);
+                    this.addFiles(this.localList, this.syncList, dir, this.modPackDir.getAbsolutePath(), false);
                 }
             }
         }
@@ -97,13 +98,17 @@ public class FileChecker
         }
     }
 
-    private void recursifAdd(List<FileEntry> list, List<FileEntry> syncList, File dir, String modpackPath, boolean syncDir)
+    private void addFiles(List<FileEntry> list, List<FileEntry> syncList, File dir, String modpackPath, boolean syncDir)
     {
         for(File file : dir.listFiles())
         {
             if(file.isDirectory())
             {
-                recursifAdd(list, syncList, file, modpackPath, syncDir);
+                if(!RemoteInfoReader.instance().enableSubFolder())
+                {
+                    // only use recursive mode if sub folder option is disabled
+                    addFiles(list, syncList, file, modpackPath, syncDir);
+                }
             }
             else
             {

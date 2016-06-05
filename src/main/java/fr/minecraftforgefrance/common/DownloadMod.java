@@ -20,7 +20,10 @@ public class DownloadMod
 
     public int time = 0;
 
-    public void getRemoteList(List<FileEntry> list, List<String> dir)
+    /**
+     * Fill the list of all files and the list of directory by reading the remote json file
+     */
+    public void getRemoteList(List<FileEntry> files, List<String> dirs)
     {
         try
         {
@@ -40,11 +43,17 @@ public class DownloadMod
                 if(size > 0L)
                 {
                     String link = RemoteInfoReader.instance().getSyncUrl() + DownloadUtils.escapeURIPathParam(key);
-                    list.add(new FileEntry(new URL(link), md5, key, size));
+                    files.add(new FileEntry(new URL(link), md5, key, size));
+                }
+                else if(RemoteInfoReader.instance().enableSubFolder())
+                {
+                    // add all folders if sub folder is enabled
+                    dirs.add(key.substring(0, key.length() - 1));
                 }
                 else if(key.split("/").length == 1)
                 {
-                    dir.add(key.replace("/", ""));
+                    // only add the folder if it's in modpack root folder
+                    dirs.add(key.substring(0, key.length() - 1));
                 }
             }
             long end = System.nanoTime();

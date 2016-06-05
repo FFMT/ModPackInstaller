@@ -87,6 +87,18 @@ public class RemoteInfoReader
     {
         return this.data.getStringValue("install", "forge");
     }
+    
+    /**
+     * An option to manage manually sub-folders
+     * By default the check of files is recursive, if you put "mods" in the list all folder inside 
+     * "mods" will also be check. If sub-folder is enabled, is it will not be the case and you 
+     * need to add "mods/subfolder" in the syncDir to make the installer checking it
+     * @return true if sub-folder is enabled
+     */
+    public boolean enableSubFolder()
+    {
+        return this.data.isBooleanValue("install", "subfolder") && this.data.getBooleanValue("install", "subfolder");
+    }
 
     public ArrayList<String> getSyncDir()
     {
