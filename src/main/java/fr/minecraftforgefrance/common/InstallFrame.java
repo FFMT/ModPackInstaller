@@ -66,6 +66,8 @@ public class InstallFrame extends JFrame
         if(RemoteInfoReader.instance().hasChangeLog())
         {
             JTextArea area = new JTextArea();
+            area.setLineWrap(true);
+            area.setWrapStyleWord(true);
             area.setBounds(4, 2, 492, 150);
             this.getChangeLog(area);
             if(!area.getText().isEmpty())
