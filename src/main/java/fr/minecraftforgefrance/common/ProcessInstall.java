@@ -54,6 +54,8 @@ public class ProcessInstall implements Runnable
 
     public final File mcDir;
     public final File modPackDir;
+    
+    private boolean error = false;
 
     public ProcessInstall(FileChecker file, IInstallRunner runner, File mcDir, String preset)
     {
@@ -103,7 +105,10 @@ public class ProcessInstall implements Runnable
         {
             this.downloadPreset();
         }
-        this.finish();
+        if(!error)
+        {
+            this.finish();
+        }
     }
 
     public void deleteDeprecated()
@@ -125,6 +130,7 @@ public class ProcessInstall implements Runnable
 
     /**
      * Check for missing libraries
+     * 
      * @return the sum of all missing libs's size
      */
     private int checkMissingLibs()
@@ -175,7 +181,7 @@ public class ProcessInstall implements Runnable
                 String libURL = DownloadUtils.LIBRARIES_URL;
                 if(library.isStringValue("url"))
                 {
-                    libURL = library.getStringValue("url") + "/";
+                    libURL = library.getStringValue("url") + (!library.getStringValue("url").endsWith("/") ? "/" : "");
                 }
                 if(libPath.exists() && DownloadUtils.checksumValid(libPath, checksums))
                 {
@@ -202,7 +208,7 @@ public class ProcessInstall implements Runnable
                     URLConnection connection = url.openConnection();
                     int fileLength = connection.getContentLength();
                     max += fileLength;
-                    missingLibs.add(new LibEntry(libURL, libName, libPath, pack, fileLength, xz));
+                    this.missingLibs.add(new LibEntry(libURL, libName, libPath, pack, fileLength, xz));
                 }
                 catch(IOException e)
                 {
@@ -215,6 +221,7 @@ public class ProcessInstall implements Runnable
 
     /**
      * Get the sum of all files's size to download
+     * 
      * @return the size
      */
     private int getTotalDownloadSize()
@@ -249,6 +256,8 @@ public class ProcessInstall implements Runnable
                 this.installFrame.dispose();
                 JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString(), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
                 Thread.currentThread().interrupt();
+                this.error = true;
+                return;
             }
         }
     }
@@ -262,11 +271,14 @@ public class ProcessInstall implements Runnable
             this.changeCurrentDownloadText(String.format(LANG.getTranslation("proc.downloadinglib"), entry.getName()));
             try
             {
-                if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), entry.getPackDest(), this.installFrame))
+                File filePath = entry.isXZ() ? entry.getPackDest() : entry.getDest();
+                if(!DownloadUtils.downloadFile(new URL(entry.getUrl()), filePath, this.installFrame))
                 {
                     this.installFrame.dispose();
-                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + DownloadUtils.PACK_NAME, LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + entry.getUrl().toString() + (entry.isXZ() ? DownloadUtils.PACK_NAME : ""), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
                     Thread.currentThread().interrupt();
+                    this.error = true;
+                    return;
                 }
                 else if(entry.isXZ())
                 {
@@ -329,6 +341,8 @@ public class ProcessInstall implements Runnable
                         this.installFrame.dispose();
                         JOptionPane.showMessageDialog(null, LANG.getTranslation("err.cannotdownload") + " : " + RemoteInfoReader.instance().getPresetUrl() + this.preset + "/" + DownloadUtils.escapeURIPathParam(file), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
                         Thread.currentThread().interrupt();
+                        this.error = true;
+                        return;
                     }
                 }
                 catch(HeadlessException e)
@@ -401,9 +415,13 @@ public class ProcessInstall implements Runnable
 
     /**
      * determine if the profile exist and if it is valid in the file launcher_profiles.json
-     * @param profiles JsonRootNode of the file launcher_profiles.json
-     * @param modpackName name of the modpack
-     * @param displayName display name of the modpack
+     * 
+     * @param profiles
+     *            JsonRootNode of the file launcher_profiles.json
+     * @param modpackName
+     *            name of the modpack
+     * @param displayName
+     *            display name of the modpack
      * @return true if the profile exist and is valid
      */
     private boolean isProfileValid(JsonRootNode profiles, String modpackName, String displayName)

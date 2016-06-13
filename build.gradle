@@ -28,7 +28,7 @@ repositories {
 
 group = 'net.minecraftforgefrance'
 archivesBaseName = 'installer'
-version = '2.1.3'
+version = '2.2.0'
 targetCompatibility = '1.6'
 sourceCompatibility = '1.6'
 
@@ -82,11 +82,11 @@ task updaterJar(type: Jar, dependsOn: "jar"){
 task fullUpdaterJar(type: Jar, dependsOn: "updaterJar"){
     inputs.file jar.archivePath
     from(configurations.compile.collect { zipTree(it).matching { 
-	include 'org/tukaani/**/*.class'
-	include 'utybo/minkj/**/*.class'
-	include 'argo/**/*.class'
-	} })
-    archiveName = "updater-${project.version}-full.jar"
+	    include 'org/tukaani/**/*.class'
+	    include 'utybo/minkj/**/*.class'
+	    include 'argo/**/*.class'
+	}})
+    archiveName = "updater-${project.version}.jar"
 }
 
 fullUpdaterJar.doFirst {
@@ -108,5 +108,5 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
+    gradleVersion = '2.7'
 }
