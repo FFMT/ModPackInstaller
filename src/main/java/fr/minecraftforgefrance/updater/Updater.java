@@ -46,18 +46,30 @@ public class Updater implements IInstallRunner
         final OptionSpec<String> modpackOption = parser.accepts("version", "The version used").withRequiredArg();
 
         final OptionSet options = parser.parse(args);
-        File mcDir = options.valueOf(gameDirOption);
+        File gameDir = options.valueOf(gameDirOption);
         String modpackName = options.valueOf(modpackOption);
-        File modPackDir = new File(new File(mcDir, "modpacks"), modpackName);
-
-        for(int i = 0; i < args.length; i++)
+        File modPackDir;
+        File mcDir;
+        
+        System.out.println("installer debug" + gameDir.getAbsoluteFile());
+        if(!gameDir.getAbsoluteFile().getPath().endsWith(modpackName))
         {
-            if("--gameDir".equals(args[i]))
+            mcDir = gameDir;
+            modPackDir = new File(new File(gameDir, "modpacks"), modpackName);
+            for(int i = 0; i < args.length; i++)
             {
-                args[i + 1] = modPackDir.getAbsolutePath();
+                if("--gameDir".equals(args[i]))
+                {
+                    args[i + 1] = modPackDir.getAbsolutePath();
+                }
             }
         }
-        arguments = args;
+        else
+        {
+            modPackDir = gameDir;
+            mcDir = gameDir.getParentFile().getParentFile();
+        }
+        this.arguments = args;
 
         File modpackInfo = new File(modPackDir, modpackName + ".json");
         if(!modpackInfo.exists())
@@ -88,7 +100,7 @@ public class Updater implements IInstallRunner
         {
             runMinecraft(args);
         }
-        FileChecker checker = new FileChecker(mcDir);
+        FileChecker checker = new FileChecker(modPackDir);
         if(!shouldUpdate(jsonProfileData.getStringValue("forge"), checker))
         {
             Logger.info("No update found, launching Minecraft !");

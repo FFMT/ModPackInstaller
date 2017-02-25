@@ -1,7 +1,5 @@
 package fr.minecraftforgefrance.common;
 
-import static fr.minecraftforgefrance.common.Localization.LANG;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,8 +9,6 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import argo.jdom.JsonField;
 
@@ -26,13 +22,11 @@ public class FileChecker
     public List<FileEntry> missingList;
     public List<FileEntry> outdatedList;
 
-    private final File mcDir;
     private final File modPackDir;
 
-    public FileChecker(File mcDir)
+    public FileChecker(File modpackDir)
     {
-        this.mcDir = mcDir;
-        this.modPackDir = new File(new File(mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName());
+        this.modPackDir = modpackDir;
         DownloadUtils.readRemoteList(this.remoteList, this.checkDir);
         this.getLocalFile();
         this.compare();
@@ -40,12 +34,6 @@ public class FileChecker
 
     private void getLocalFile()
     {
-        if(!this.mcDir.exists() || !this.mcDir.isDirectory())
-        {
-            JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcdirmissing"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
         if(!this.modPackDir.isDirectory())
         {
             this.modPackDir.delete();

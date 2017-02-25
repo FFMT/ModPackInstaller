@@ -99,7 +99,12 @@ public class InstallerFrame extends JFrame implements IInstallRunner
             public void actionPerformed(ActionEvent e)
             {
                 InstallerFrame.this.dispose();
-                FileChecker checker = new FileChecker(mcDir);
+                if(!InstallerFrame.this.mcDir.exists() || !InstallerFrame.this.mcDir.isDirectory())
+                {
+                    JOptionPane.showMessageDialog(null, LANG.getTranslation("err.mcdirmissing"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                FileChecker checker = new FileChecker(new File(new File(InstallerFrame.this.mcDir, "modpacks"), RemoteInfoReader.instance().getModPackName()));
                 ProcessInstall install = new ProcessInstall(checker, InstallerFrame.this, InstallerFrame.this.mcDir, InstallerFrame.this.preSet);
                 install.createFrame();
             }

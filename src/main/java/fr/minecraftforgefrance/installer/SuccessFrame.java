@@ -20,8 +20,7 @@ import fr.minecraftforgefrance.common.EnumOS;
 public class SuccessFrame extends JDialog
 {
     private static final long serialVersionUID = 1L;
-    private boolean launcherExist = false;
-    private File launcherFile = new File(Installer.frame.mcDir.getPath(), "launcher.jar");
+    private File launcherFile;
 
     public SuccessFrame()
     {
@@ -50,38 +49,36 @@ public class SuccessFrame extends JDialog
             }
         });
         buttonPanel.add(exit);
-        
-        this.launcherExist = this.launcherFile.exists();
-        if(!this.launcherExist && EnumOS.getPlatform() == EnumOS.WINDOWS)
+
+        if(EnumOS.getPlatform() == EnumOS.WINDOWS)
         {
-            File launcherWithMsi = new File("C:\\Program Files (x86)\\Minecraft\\game\\launcher.jar");
-            this.launcherExist = launcherWithMsi.exists();
+            if(System.getenv("ProgramW6432").isEmpty())
+            {
+                // 32 bits system
+                this.launcherFile = new File("C:\\Program Files\\Minecraft\\MinecraftLauncher.exe");
+            }
+            else
+            {
+                // 64 bits system
+                this.launcherFile = new File("C:\\Program Files (x86)\\Minecraft\\MinecraftLauncher.exe");
+            }
         }
-        
+        else
+        {
+            this.launcherFile = new File(Installer.frame.mcDir.getPath(), "launcher.jar");
+        }
+
         JButton runGame = new JButton(LANG.getTranslation("scr.btn.run"));
         runGame.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if(SuccessFrame.this.launcherFile.exists())
+                if(EnumOS.getPlatform() == EnumOS.WINDOWS)
                 {
                     try
                     {
-                        Runtime.getRuntime().exec(EnumOS.getJavaExecutable() + " -jar " + Installer.frame.mcDir.getPath() + File.separator + "launcher.jar");
-                    }
-                    catch(IOException ex)
-                    {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-                else if(EnumOS.getPlatform() == EnumOS.WINDOWS)
-                {
-                    // fix for Minecraft installer on Windows
-                    try
-                    {
-                        Runtime.getRuntime().exec(EnumOS.getJavaExecutable() + " -jar " + "\"C:\\Program Files (x86)\\Minecraft\\game\\launcher.jar\"");
+                        Runtime.getRuntime().exec(SuccessFrame.this.launcherFile.getAbsolutePath());
                     }
                     catch(IOException ex2)
                     {
@@ -89,15 +86,27 @@ public class SuccessFrame extends JDialog
                         JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
                     }
                 }
+                else
+                {
+                    try
+                    {
+                        Runtime.getRuntime().exec(EnumOS.getJavaExecutable() + " -jar " + SuccessFrame.this.launcherFile.getAbsolutePath());
+                    }
+                    catch(IOException ex)
+                    {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, LANG.getTranslation("err.runminecraft"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
                 SuccessFrame.this.dispose();
             }
         });
-        if(this.launcherExist)
+        if(SuccessFrame.this.launcherFile.exists())
         {
             buttonPanel.add(runGame);
         }
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-        
+
         this.setLocationRelativeTo(null);
     }
 }

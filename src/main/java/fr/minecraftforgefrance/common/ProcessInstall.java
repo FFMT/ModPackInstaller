@@ -468,14 +468,14 @@ public class ProcessInstall implements Runnable
 
         if(!isProfileValid(jsonProfileData, modpackName, displayName))
         {
-            JsonField[] fields = null;
+            JsonField[] fields = new JsonField[RemoteInfoReader.instance().hasArgument() ? 5 : 4];
+            fields[0] = JsonNodeFactories.field("name", JsonNodeFactories.string(displayName));
+            fields[1] = JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName));
+            fields[2] = JsonNodeFactories.field("type", JsonNodeFactories.string("custom"));
+            fields[3] = JsonNodeFactories.field("gameDir", JsonNodeFactories.string(this.modPackDir.getAbsoluteFile().toString()));
             if(RemoteInfoReader.instance().hasArgument())
             {
-                fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(displayName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName)), JsonNodeFactories.field("javaArgs", JsonNodeFactories.string(RemoteInfoReader.instance().getArgument()))};
-            }
-            else
-            {
-                fields = new JsonField[] {JsonNodeFactories.field("name", JsonNodeFactories.string(displayName)), JsonNodeFactories.field("lastVersionId", JsonNodeFactories.string(modpackName))};
+                fields[4] = JsonNodeFactories.field("javaArgs", JsonNodeFactories.string(RemoteInfoReader.instance().getArgument()));
             }
 
             HashMap<JsonStringNode, JsonNode> profileCopy = Maps.newHashMap(jsonProfileData.getNode("profiles").getFields());

@@ -3,12 +3,13 @@ package fr.minecraftforgefrance.common;
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.JOptionPane;
 
@@ -37,10 +38,8 @@ public class RemoteInfoReader
     {
         try
         {
-            URI uri = new URI(this.remoteUrl);
-            URLConnection connection = uri.toURL().openConnection();
-            InputStream in = connection.getInputStream();
-            this.data = this.parser.parse(new InputStreamReader(in, Charsets.UTF_8));
+            InputStreamReader reader = getRemoteStream(this.remoteUrl);
+            this.data = this.parser.parse(reader);
             return true;
         }
         catch(InvalidSyntaxException e)
@@ -72,7 +71,7 @@ public class RemoteInfoReader
     {
         return this.data.getStringValue("profile", "id");
     }
-    
+
     public String getModPackDisplayName()
     {
         return this.data.getStringValue("install", "name");
@@ -87,11 +86,11 @@ public class RemoteInfoReader
     {
         return this.data.getStringValue("install", "forge");
     }
-    
+
     /**
      * An option to manage manually sub-folders
-     * By default the check of files is recursive, if you put "mods" in the list all folder inside 
-     * "mods" will also be check. If sub-folder is enabled, is it will not be the case and you 
+     * By default the check of files is recursive, if you put "mods" in the list all folder inside
+     * "mods" will also be check. If sub-folder is enabled, is it will not be the case and you
      * need to add "mods/subfolder" in the syncDir to make the installer checking it
      * @return true if sub-folder is enabled
      */
@@ -139,15 +138,13 @@ public class RemoteInfoReader
     {
         return this.data.isStringValue("install", "whiteList");
     }
-    
+
     public JsonRootNode getWhileList()
     {
         try
         {
-            URI uri = new URI(this.data.getStringValue("install", "whiteList"));
-            URLConnection connection = uri.toURL().openConnection();
-            InputStream in = connection.getInputStream();
-            return this.parser.parse(new InputStreamReader(in, Charsets.UTF_8));
+            InputStreamReader reader = getRemoteStream(this.data.getStringValue("install", "whiteList"));
+            return this.parser.parse(reader);
         }
         catch(Exception e)
         {
@@ -175,7 +172,7 @@ public class RemoteInfoReader
     {
         return this.data.getStringValue("install", "credits");
     }
-    
+
     public boolean hasChangeLog()
     {
         return this.data.isStringValue("install", "changeLog");
@@ -185,10 +182,8 @@ public class RemoteInfoReader
     {
         try
         {
-            URI uri = new URI(this.data.getStringValue("install", "changeLog"));
-            URLConnection connection = uri.toURL().openConnection();
-            InputStream in = connection.getInputStream();
-            return this.parser.parse(new InputStreamReader(in, Charsets.UTF_8));
+            InputStreamReader reader = getRemoteStream(this.data.getStringValue("install", "changeLog"));
+            return this.parser.parse(reader);
         }
         catch(Exception e)
         {
@@ -196,7 +191,7 @@ public class RemoteInfoReader
             return null;
         }
     }
-    
+
     public boolean hasPreset()
     {
         return this.data.isStringValue("install", "preset");
@@ -206,10 +201,8 @@ public class RemoteInfoReader
     {
         try
         {
-            URI uri = new URI(this.data.getStringValue("install", "preset"));
-            URLConnection connection = uri.toURL().openConnection();
-            InputStream in = connection.getInputStream();
-            return this.parser.parse(new InputStreamReader(in, Charsets.UTF_8));
+            InputStreamReader reader = getRemoteStream(this.data.getStringValue("install", "preset"));
+            return this.parser.parse(reader);
         }
         catch(Exception e)
         {
@@ -217,9 +210,26 @@ public class RemoteInfoReader
             return null;
         }
     }
-    
+
     public String getPresetUrl()
     {
         return this.data.getStringValue("install", "preset");
+    }
+    
+    private InputStreamReader getRemoteStream(String str) throws MalformedURLException, IOException, URISyntaxException
+    {
+        URI uri = new URI(str);
+        URLConnection connection = uri.toURL().openConnection();
+        connection.setRequestProperty("Accept-Encoding", "gzip");
+        InputStreamReader reader = null;
+        if("gzip".equals(connection.getContentEncoding()))
+        {
+            reader = new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charsets.UTF_8);
+        }
+        else
+        {
+            reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
+        }
+        return reader;
     }
 }
