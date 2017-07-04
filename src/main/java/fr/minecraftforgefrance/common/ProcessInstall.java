@@ -206,6 +206,7 @@ public class ProcessInstall implements Runnable
                 {
                     URL url = new URL(libURL);
                     URLConnection connection = url.openConnection();
+                    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:10.0) Gecko/20100101 Firefox/55.0");
                     int fileLength = connection.getContentLength();
                     max += fileLength;
                     this.missingLibs.add(new LibEntry(libURL, libName, libPath, pack, fileLength, xz));

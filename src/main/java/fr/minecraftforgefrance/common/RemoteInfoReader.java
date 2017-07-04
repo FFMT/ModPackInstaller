@@ -221,6 +221,7 @@ public class RemoteInfoReader
         URI uri = new URI(str);
         URLConnection connection = uri.toURL().openConnection();
         connection.setRequestProperty("Accept-Encoding", "gzip");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:10.0) Gecko/20100101 Firefox/55.0");
         InputStreamReader reader = null;
         if("gzip".equals(connection.getContentEncoding()))
         {

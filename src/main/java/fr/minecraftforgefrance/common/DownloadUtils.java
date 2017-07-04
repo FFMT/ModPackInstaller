@@ -22,6 +22,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.JOptionPane;
 
@@ -53,8 +54,21 @@ public class DownloadUtils
         try
         {
             URL resourceUrl = new URL(RemoteInfoReader.instance().getSyncUrl());
+            URLConnection connection = resourceUrl.openConnection();
+            connection.setRequestProperty("Accept-Encoding", "gzip");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:10.0) Gecko/20100101 Firefox/55.0");
+
             JdomParser parser = new JdomParser();
-            JsonRootNode data = parser.parse(new InputStreamReader(resourceUrl.openStream(), Charsets.UTF_8));
+            InputStreamReader reader = null;
+            if("gzip".equals(connection.getContentEncoding()))
+            {
+                reader = new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charsets.UTF_8);
+            }
+            else
+            {
+                reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
+            }
+            JsonRootNode data = parser.parse(reader);
 
             for(int i = 0; i < data.getElements().size(); i++)
             {
@@ -103,6 +117,7 @@ public class DownloadUtils
         try
         {
             URLConnection connection = url.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:10.0) Gecko/20100101 Firefox/55.0");
 
             final int fileLength = connection.getContentLength();
 
