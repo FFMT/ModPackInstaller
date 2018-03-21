@@ -31,7 +31,7 @@ function valid($value)
    return !is_dir($value) || substr_count($value, '/') == 1;
 }
 
-header('Content-type: text/javascript');
+header('Content-Type: application/json');
 $index = 0;
 echo '{'."\n";
 echo '    "default": "azerty",'."\n";

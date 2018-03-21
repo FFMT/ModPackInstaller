@@ -21,7 +21,7 @@ function ScanDirectory($Directory, $tableau=false){
 	return $tableau;
 }
 
-header('Content-type: text/javascript');
+header('Content-Type: application/json');
 echo '['."\n";
 $index = 0;
 foreach(ScanDirectory('.') as $key => $value)
