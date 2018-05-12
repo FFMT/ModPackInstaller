@@ -2,14 +2,25 @@ package fr.minecraftforgefrance.updater;
 
 import static fr.minecraftforgefrance.common.Localization.LANG;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
-import com.google.common.io.Files;
 
 import argo.jdom.JdomParser;
 import argo.jdom.JsonRootNode;
@@ -51,7 +62,6 @@ public class Updater implements IInstallRunner
         File modPackDir;
         File mcDir;
         
-        System.out.println("installer debug" + gameDir.getAbsoluteFile());
         if(!gameDir.getAbsoluteFile().getPath().endsWith(modpackName))
         {
             mcDir = gameDir;
@@ -69,6 +79,7 @@ public class Updater implements IInstallRunner
             modPackDir = gameDir;
             mcDir = gameDir.getParentFile().getParentFile();
         }
+        Logger.info(String.format("Running installer in folder: %s", gameDir.getPath()));
         this.arguments = args;
 
         File modpackInfo = new File(modPackDir, modpackName + ".json");
@@ -83,7 +94,7 @@ public class Updater implements IInstallRunner
 
         try
         {
-            jsonProfileData = jsonParser.parse(Files.newReader(modpackInfo, Charsets.UTF_8));
+            jsonProfileData = jsonParser.parse(com.google.common.io.Files.newReader(modpackInfo, Charsets.UTF_8));
         }
         catch(InvalidSyntaxException e)
         {
@@ -95,6 +106,9 @@ public class Updater implements IInstallRunner
             JOptionPane.showMessageDialog(null, LANG.getTranslation("err.erroredprofile"), LANG.getTranslation("misc.error"), JOptionPane.ERROR_MESSAGE);
             throw Throwables.propagate(e);
         }
+        
+        this.injectLECert();
+        
         RemoteInfoReader.instance = new RemoteInfoReader(jsonProfileData.getStringValue("remote"));
         if(!RemoteInfoReader.instance().init())
         {
@@ -162,4 +176,33 @@ public class Updater implements IInstallRunner
     {
         return forgeUpdate;
     }
+    
+    // Minecraft new launcher use Java 8u25, so let's encrypt cert isn't recognized. This code add the let's encrypt root cert in trust certs list.
+    public void injectLECert()
+    {
+        try
+        {
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            Path ksPath = Paths.get(System.getProperty("java.home"), "lib", "security", "cacerts");
+            keyStore.load(Files.newInputStream(ksPath), null);
+
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            InputStream caInput = new BufferedInputStream(Updater.class.getResourceAsStream("/letsencryptauthorityx3.pem"));
+            Certificate crt = cf.generateCertificate(caInput);
+            keyStore.setCertificateEntry("letsencryptauthorityx3", crt);
+            Logger.info("Added Cert for " + ((X509Certificate)crt).getSubjectDN());
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, tmf.getTrustManagers(), new SecureRandom());
+            SSLContext.setDefault(sslContext);
+        }
+        catch(Exception e)
+        {
+        	System.err.println("Failed to import LE root cert:");
+        	e.printStackTrace();
+        }
+    }
+
 }
