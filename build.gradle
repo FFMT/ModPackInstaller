@@ -28,7 +28,7 @@ repositories {
 
 group = 'net.minecraftforgefrance'
 archivesBaseName = 'installer'
-version = '2.4.0'
+version = '2.4.1'
 targetCompatibility = '1.6'
 sourceCompatibility = '1.6'
 
@@ -78,6 +78,7 @@ task updaterJar(type: Jar, dependsOn: "jar"){
         include "fr/minecraftforgefrance/common/**"
 		include "langs/**"
 		include "letsencryptauthorityx3.pem"
+		include "lets-encrypt-r3.pem"
 }
 
 task fullUpdaterJar(type: Jar, dependsOn: "updaterJar"){

@@ -177,7 +177,7 @@ public class Updater implements IInstallRunner
         return forgeUpdate;
     }
     
-    // Minecraft new launcher use Java 8u25, so let's encrypt cert isn't recognized. This code add the let's encrypt root cert in trust certs list.
+    // Minecraft launcher use Java 8u51, so let's encrypt certificate isn't recognized. This code add the let's encrypt root cert in trust certs list.
     public void injectLECert()
     {
         try
@@ -191,6 +191,11 @@ public class Updater implements IInstallRunner
             Certificate crt = cf.generateCertificate(caInput);
             keyStore.setCertificateEntry("letsencryptauthorityx3", crt);
             Logger.info("Added Cert for " + ((X509Certificate)crt).getSubjectDN());
+
+            InputStream caInput2 = new BufferedInputStream(Updater.class.getResourceAsStream("/lets-encrypt-r3.pem"));
+            Certificate crt2 = cf.generateCertificate(caInput2);
+            keyStore.setCertificateEntry("letsencryptauthorityx3", crt2);
+            Logger.info("Added Cert for " + ((X509Certificate)crt2).getSubjectDN());
 
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(keyStore);

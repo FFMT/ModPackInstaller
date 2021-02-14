@@ -68,6 +68,7 @@ public class DownloadUtils
             {
                 reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
             }
+
             JsonRootNode data = parser.parse(reader);
 
             for(int i = 0; i < data.getElements().size(); i++)
